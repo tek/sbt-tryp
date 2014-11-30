@@ -34,12 +34,15 @@ trait Proguard {
     useProguard in Android := true,
     proguardScala in Android := true,
     proguardCache in Android ++= cache,
-    proguardOptions in Android ++= options
+    proguardOptions in Android ++= options,
+    apkbuildExcludes in Android ++= excludes
   )
 
   lazy val cache: Seq[ProguardCache] = Seq()
 
   lazy val options: Seq[String] = Seq()
+
+  lazy val excludes: Seq[String] = Seq()
 }
 
 trait Deps {
