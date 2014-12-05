@@ -46,7 +46,7 @@ trait Proguard {
 }
 
 trait Deps {
-  def deps = Map(
+  def deps: Map[String, Seq[Setting[_]]] = Map(
     "macros" → macros,
     "unit" → unit,
     "integration" → integration
