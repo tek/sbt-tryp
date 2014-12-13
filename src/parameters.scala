@@ -6,10 +6,10 @@ import android.Keys._
 
 import scala.collection.mutable.ListBuffer
 
-object Aar {
-  lazy val settings = {
-    android.Plugin.androidBuildAar :+ (exportJars := true)
-  }
+object Export {
+  lazy val settings = Seq((exportJars := true))
+
+  lazy val aar = android.Plugin.androidBuildAar ++ settings
 }
 
 object Tests {
@@ -84,7 +84,12 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard,
   var pPath = name
 
   def aar = {
-    Aar.settings ++=: pSettings
+    Export.aar ++=: pSettings
+    this
+  }
+
+  def export = {
+    Export.settings ++=: pSettings
     this
   }
 
