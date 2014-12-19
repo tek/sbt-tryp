@@ -62,9 +62,10 @@ trait Deps {
 
   lazy val unit = Seq(
     libraryDependencies ++= Seq(
+      "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
       "junit" % "junit" % "4.+",
       "org.scalatest" %% "scalatest" % "2.1.6",
-      "org.robolectric" % "robolectric" % "2.3"
+      "org.robolectric" % "robolectric" % "2.+"
     )
   )
 
@@ -113,9 +114,9 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard,
     this
   }
 
-  def test(dep: Project) = {
-    settings(Tests.settings(dep))
-    androidDeps(dep)
+  def test(deps: Project*) = {
+    settings(Tests.settings(deps.head))
+    androidDeps(deps: _*)
   }
 
   def project(callback: (Project) => Project = identity) = {
