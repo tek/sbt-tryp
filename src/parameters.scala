@@ -83,6 +83,7 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard,
   var pTransitive = false
   var pSettings = ListBuffer[Setting[_]](defaultSettings: _*)
   var pPath = name
+  var pRootDeps: Seq[RootProject] = Seq()
 
   def aar = {
     Export.aar ++=: pSettings
@@ -125,12 +126,27 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard,
       (transitiveAndroidLibs in Android := pTransitive): _*)
   }
 
-  def dep(pro: ProjectReference) = {
-    project { _.dependsOn(pro) }
+  def dep(pros: ClasspathDep[ProjectReference]*) = {
+    project { _.dependsOn(pros: _*) }
   }
 
   def androidDeps(projects: Project*) = {
     project { _.androidBuildWith(projects: _*) }
+  }
+
+  def rootDeps(projects: RootProject*) = {
+    pRootDeps ++= projects
+    projects foreach { p ⇒
+      pSettings ++= Seq(
+      collectResources in Android <<= collectResources in Android dependsOn (
+        compile in Compile in p),
+      compile in Compile <<= compile in Compile dependsOn(
+        packageT in Compile in p),
+      (localProjects in Android ++= Seq(android.Dependencies.LibraryProject(
+        (baseDirectory in p).value)))
+        )
+    }
+    this
   }
 
   def apply() = project()
