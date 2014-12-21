@@ -77,8 +77,18 @@ trait Deps {
   )
 }
 
-class ProjectParameters(name: String, deps: Deps, prog: Proguard,
-  defaultSettings: Setting[_]*)
+trait Placeholders {
+  lazy val defaults: Map[String, String] = Map()
+
+  def apply(name: String) = {
+    defaults ++ specific.get(name).getOrElse(Map[String, String]())
+  }
+
+  lazy val specific: Map[String, Map[String, String]] = Map()
+}
+
+class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
+  Placeholders, defaultSettings: Setting[_]*)
 {
   var pTransitive = false
   var pSettings = ListBuffer[Setting[_]](defaultSettings: _*)
@@ -115,6 +125,10 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard,
     this
   }
 
+  def placeholderSetting = {
+    manifestPlaceholders in Android := placeholders(name)
+  }
+
   def test(deps: Project*) = {
     settings(Tests.settings(deps.head))
     androidDeps(deps: _*)
@@ -122,7 +136,7 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard,
 
   def project(callback: (Project) => Project = identity) = {
     callback(Project(name, file(pPath)))
-      .settings(deps(name) ++ pSettings :+
+      .settings(deps(name) ++ pSettings :+ placeholderSetting :+
       (transitiveAndroidLibs in Android := pTransitive): _*)
   }
 
