@@ -106,7 +106,7 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
   var pTransitive = false
   var pSettings = ListBuffer[Setting[_]](defaultSettings: _*)
   var pPath = name
-  var pRootDeps: Seq[RootProject] = Seq()
+  var pRootDeps: Seq[ProjectReference] = Seq()
 
   def aar = {
     Export.aar ++=: pSettings
@@ -166,7 +166,7 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
     project { _.androidBuildWith(projects: _*) }
   }
 
-  def rootDeps(projects: RootProject*) = {
+  def rootDeps(projects: ProjectReference*) = {
     pRootDeps ++= projects
     projects foreach { p ⇒
       pSettings ++= Seq(
