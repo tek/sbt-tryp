@@ -152,6 +152,11 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
     this
   }
 
+  def antSrc = {
+    pSettings += (javaSource in Compile := baseDirectory.value / "src")
+    this
+  }
+
   def project(callback: (Project) => Project = identity) = {
     callback(Project(name, file(pPath)))
       .settings(deps(name) ++ pSettings :+ placeholderSetting :+
