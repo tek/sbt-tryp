@@ -46,6 +46,15 @@ trait Proguard {
   lazy val excludes: Seq[String] = Seq()
 }
 
+object Paradise {
+  def settings(version: String) = Seq(
+    incOptions := incOptions.value.withNameHashing(false),
+    addCompilerPlugin(
+      "org.scalamacros" % "paradise" % version cross CrossVersion.full
+    )
+  )
+}
+
 trait Deps {
   def deps: Map[String, Seq[Setting[_]]] = Map(
     "macros" → macros,
@@ -136,6 +145,11 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
   def test(deps: Project*) = {
     settings(Tests.settings(deps.head))
     androidDeps(deps: _*)
+  }
+
+  def paradise(version: String = "2.0.1") = {
+    pSettings ++= Paradise.settings(version)
+    this
   }
 
   def project(callback: (Project) => Project = identity) = {
