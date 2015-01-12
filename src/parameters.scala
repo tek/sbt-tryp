@@ -100,6 +100,33 @@ trait Placeholders {
   lazy val specific: Map[String, Map[String, String]] = Map()
 }
 
+object Multidex
+{
+  def settings(appClass: String) = Seq(
+    dexMainFileClasses in Android := Seq(
+      appClass,
+      "android/support/multidex/BuildConfig.class",
+      "android/support/multidex/MultiDex$V14.class",
+      "android/support/multidex/MultiDex$V19.class",
+      "android/support/multidex/MultiDex$V4.class",
+      "android/support/multidex/MultiDex.class",
+      "android/support/multidex/MultiDexApplication.class",
+      "android/support/multidex/MultiDexExtractor$1.class",
+      "android/support/multidex/MultiDexExtractor.class",
+      "android/support/multidex/ZipUtil$CentralDirectory.class",
+      "android/support/multidex/ZipUtil.class"
+    ),
+    dexMulti in Android := true,
+    dexMinimizeMainFile in Android := false
+  )
+
+  def deps = Seq(
+    libraryDependencies ++= Seq(
+      aar("com.android.support" % "multidex" % "1.+")
+    )
+  )
+}
+
 class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
   Placeholders, defaultSettings: Setting[_]*)
 {
@@ -154,6 +181,11 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
 
   def antSrc = {
     pSettings += (javaSource in Compile := baseDirectory.value / "src")
+    this
+  }
+
+  def multidex(appClass: String) = {
+    pSettings ++= Multidex.settings(appClass) ++ Multidex.deps
     this
   }
 
