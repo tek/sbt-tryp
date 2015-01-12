@@ -174,6 +174,11 @@ class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
     androidDeps(deps: _*)
   }
 
+  def testOnly(deps: Project*) = {
+    settings(Seq(scalaSource in Test := baseDirectory.value / "src"))
+    test(deps: _*)
+  }
+
   def paradise(version: String = "2.0.1") = {
     pSettings ++= Paradise.settings(version)
     this
