@@ -11,6 +11,6 @@ abstract class MultiBuild(
 
   lazy val platformSetting = (platformTarget in Android := platform)
 
-  def p(name: String) = new ProjectParameters(name, deps, proguard,
-    placeholders, platformSetting)
+  def p(name: String) = new ProjectBuilder(name, deps, proguard, placeholders,
+    platformSetting)
 }

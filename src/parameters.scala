@@ -127,7 +127,7 @@ object Multidex
   )
 }
 
-class ProjectParameters(name: String, deps: Deps, prog: Proguard, placeholders:
+class ProjectBuilder(name: String, deps: Deps, prog: Proguard, placeholders:
   Placeholders, defaultSettings: Setting[_]*)
 {
   var pTransitive = false
