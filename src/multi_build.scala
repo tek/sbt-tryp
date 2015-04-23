@@ -1,16 +1,42 @@
 package tryp
 
-import sbt._
-import Keys._
+import sbt.Setting
 import android.Keys._
 
-abstract class MultiBuild(
+object DefaultDeps extends Deps
+object DefaultProguard extends Proguard
+object DefaultPlaceholders extends Placeholders
+
+class MultiBuild(
   deps: Deps, proguard: Proguard, placeholders: Placeholders
-) extends Build {
+) extends sbt.Build
+{
+  def globalSettings: List[Setting[_]] = Nil
+
+  def p(name: String) =
+    new ProjectBuilder(name, deps, proguard, placeholders, globalSettings: _*)
+}
+
+abstract class AndroidBuild(
+  deps: Deps = DefaultDeps,
+  proguard: Proguard = DefaultProguard,
+  placeholders: Placeholders = DefaultPlaceholders
+)
+extends MultiBuild(deps, proguard, placeholders)
+{
   val platform: String
 
   lazy val platformSetting = (platformTarget in Android := platform)
 
-  def p(name: String) = new ProjectBuilder(name, deps, proguard, placeholders,
-    platformSetting)
+  lazy val warningSetting = (transitiveAndroidWarning in Android := false)
+
+  override def globalSettings =
+    platformSetting :: warningSetting :: super.globalSettings
 }
+
+class Build(
+  deps: Deps = DefaultDeps,
+  proguard: Proguard = DefaultProguard,
+  placeholders: Placeholders = DefaultPlaceholders
+)
+extends MultiBuild(deps, proguard, placeholders)
