@@ -66,23 +66,23 @@ trait Deps {
     deps.get(name) getOrElse Seq()
   }
 
-  lazy val macros = Seq(
-    libraryDependencies += "org.scala-lang" % "scala-reflect" %  "2.11.2"
+  def macros = Seq(
+    libraryDependencies += "org.scala-lang" % "scala-reflect" %  "2.11.+"
   )
 
-  lazy val unit = Seq(
+  def unit = Seq(
     resolvers += ("RoboTest releases" at
       "https://github.com/zbsz/mvn-repo/raw/master/releases/"),
     libraryDependencies ++= Seq(
       "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
       "junit" % "junit" % "4.+",
-      "org.scalatest" %% "scalatest" % "2.1.6",
+      "org.scalatest" %% "scalatest" % "2.+",
       "org.robolectric" % "robolectric" % "2.+",
       "com.geteit" %% "robotest" % "0.+"
     )
   )
 
-  lazy val integration = Seq(
+  def integration = Seq(
     libraryDependencies ++= Seq(
       "junit" % "junit" % "4.+",
       "com.jayway.android.robotium" % "robotium-solo" % "5.+"
@@ -179,7 +179,7 @@ class ProjectBuilder(name: String, deps: Deps, prog: Proguard, placeholders:
     test(deps: _*)
   }
 
-  def paradise(version: String = "2.0.1") = {
+  def paradise(version: String = "2.+") = {
     pSettings ++= Paradise.settings(version)
     this
   }
