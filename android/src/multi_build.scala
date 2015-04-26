@@ -1,28 +1,19 @@
 package tryp
 
-import sbt.Setting
+import sbt._
+import sbt.Keys._
 import android.Keys._
 
-object DefaultDeps extends Deps
+object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
 object DefaultPlaceholders extends Placeholders
-
-class MultiBuild(
-  deps: Deps, proguard: Proguard, placeholders: Placeholders
-) extends sbt.Build
-{
-  def globalSettings: List[Setting[_]] = Nil
-
-  def p(name: String) =
-    new ProjectBuilder(name, deps, proguard, placeholders, globalSettings: _*)
-}
 
 abstract class AndroidBuild(
   deps: Deps = DefaultDeps,
   proguard: Proguard = DefaultProguard,
   placeholders: Placeholders = DefaultPlaceholders
 )
-extends MultiBuild(deps, proguard, placeholders)
+extends MultiBuildBase(deps)
 {
   val platform: String
 
@@ -32,11 +23,8 @@ extends MultiBuild(deps, proguard, placeholders)
 
   override def globalSettings =
     platformSetting :: warningSetting :: super.globalSettings
-}
 
-class Build(
-  deps: Deps = DefaultDeps,
-  proguard: Proguard = DefaultProguard,
-  placeholders: Placeholders = DefaultPlaceholders
-)
-extends MultiBuild(deps, proguard, placeholders)
+  def p(name: String) =
+    new AndroidProjectBuilder(name, deps, proguard, placeholders,
+      globalSettings: _*)
+}
