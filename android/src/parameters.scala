@@ -78,9 +78,8 @@ extends Deps
 
 object Multidex
 {
-  def settings(appClass: String) = Seq(
-    dexMainFileClasses in Android := Seq(
-      appClass,
+  def settings(main: Seq[String]) = Seq(
+    dexMainFileClasses in Android := main ++ Seq(
       "android/support/multidex/BuildConfig.class",
       "android/support/multidex/MultiDex$V14.class",
       "android/support/multidex/MultiDex$V19.class",
@@ -141,8 +140,8 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, defaultSettings: _*)
     this
   }
 
-  def multidex(appClass: String) = {
-    pSettings ++= Multidex.settings(appClass) ++ Multidex.deps
+  def multidex(main: Seq[String]) = {
+    pSettings ++= Multidex.settings(main) ++ Multidex.deps
     this
   }
 
