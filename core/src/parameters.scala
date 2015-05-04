@@ -74,6 +74,7 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
     pSettings += (scalaSource in Compile := baseDirectory.value / "src")
     pSettings +=
       (resourceDirectory in Compile := baseDirectory.value / "resources")
+    pSettings += (scalaSource in Test := baseDirectory.value / "test-src")
     this
   }
 
