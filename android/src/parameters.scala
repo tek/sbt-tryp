@@ -62,7 +62,7 @@ extends Deps
     libraryDependencies ++= Seq(
       "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
       "junit" % "junit" % "4.+",
-      "org.scalatest" %% "scalatest" % "2.+",
+      "org.scalatest" %% "scalatest" % "2.2.+",
       "org.robolectric" % "robolectric" % "2.+",
       "com.geteit" %% "robotest" % "0.+"
     )
