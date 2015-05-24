@@ -13,11 +13,15 @@ extends sbt.Build
     scalacOptions ++= Seq(
       "-feature",
       "-deprecation",
+      "-unchecked",
       "-language:implicitConversions",
       "-language:postfixOps",
       "-language:reflectiveCalls",
-      "-language:experimental.macros"
-    )
+      "-language:experimental.macros",
+      "-language:existentials",
+      "-language:higherKinds"
+    ),
+    updateOptions := updateOptions.value.withCachedResolution(true)
   )
 
   def globalSettings: List[Setting[_]] = Nil
