@@ -140,8 +140,19 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, defaultSettings: _*)
     this
   }
 
-  def multidex(main: Seq[String]) = {
-    pSettings ++= Multidex.settings(main) ++ Multidex.deps
+  def multidex(main: Seq[String] = List()) = {
+    multidexDeps
+    multidexSettings(main)
+    this
+  }
+
+  def multidexDeps = {
+    pSettings ++= Multidex.deps
+    this
+  }
+
+  def multidexSettings(main: Seq[String]) = {
+    pSettings ++= Multidex.settings(main)
     this
   }
 
