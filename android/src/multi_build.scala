@@ -15,7 +15,7 @@ abstract class AndroidBuild(
 )
 extends MultiBuildBase(deps)
 {
-  val platform: String
+  val platform = "android-21"
 
   lazy val platformSetting = (platformTarget in Android := platform)
 
