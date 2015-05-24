@@ -3,13 +3,15 @@ import sbt.Keys._
 
 object TrypBuild extends sbt.Build
 {
+  val aVersion = "1.3.23"
+
   override lazy val settings = super.settings ++ Seq(
     name := "tryp-plugin",
-    version := "1.3.1",
-    organization := "tryp"
+    version := aVersion,
+    organization := "tryp.sbt"
   )
 
-  lazy val common = Seq(
+  lazy val common = List(
     sbtPlugin := true,
     scalaSource in Compile <<= baseDirectory(_ / "src")
   )
@@ -18,8 +20,10 @@ object TrypBuild extends sbt.Build
     .settings(common: _*)
 
   lazy val android = (project in file("android"))
-    .settings(common: _*)
-    .dependsOn(sdk, core)
+    .settings(common ++ sdk: _*)
+    .dependsOn(core)
 
-  lazy val sdk = RootProject(file("../android-sdk-plugin"))
+  lazy val sdk = List(
+    addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % aVersion)
+  )
 }
