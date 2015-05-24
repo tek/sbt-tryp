@@ -34,9 +34,13 @@ trait Deps {
       "org.scala-lang" % "scala-reflect" % scalaVersion.value
   )
 
+  val specsV = "3.6"
+
   def unit: Seq[Setting[_]] = Seq(
-    libraryDependencies +=
-      "org.scalatest" %% "scalatest" % "2.+"
+    libraryDependencies ++=
+      "org.scalatest" %% "scalatest" % "2.+" ::
+      "org.specs2" %% "specs2-core" % specsV ::
+      Nil
   )
 
   def integration: Seq[Setting[_]] = Seq(
