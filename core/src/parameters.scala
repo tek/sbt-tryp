@@ -29,6 +29,9 @@ trait Deps {
   val scalazV = "7.1.+"
 
   def common = Seq(
+    resolvers ++= Seq(
+      Resolver.bintrayRepo("scalaz", "releases")
+    ),
     libraryDependencies ++= Seq(
       "org.scalaz" %% "scalaz-concurrent" % scalazV
       )
