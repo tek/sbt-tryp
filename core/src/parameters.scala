@@ -20,10 +20,19 @@ object Paradise {
 
 trait Deps {
   def deps: Map[String, Seq[Setting[_]]] = Map(
+    "root" → common,
     "macros" → macros,
     "unit" → unit,
     "integration" → integration
   )
+
+  val scalazV = "7.1.+"
+
+  def common = Seq(
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz-concurrent" % scalazV
+      )
+    )
 
   def apply(name: String) = {
     deps.get(name) getOrElse Seq()
@@ -38,7 +47,7 @@ trait Deps {
 
   def unit: Seq[Setting[_]] = Seq(
     libraryDependencies ++=
-      "org.scalatest" %% "scalatest" % "2.+" ::
+      "org.scalatest" %% "scalatest" % "2.2.+" ::
       "org.specs2" %% "specs2-core" % specsV ::
       Nil
   )
