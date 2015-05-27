@@ -56,19 +56,18 @@ object Tests {
 trait AndroidDeps
 extends Deps
 {
-  override def unit = Seq(
+  override def unit = super.unit ++ Seq(
     resolvers += ("RoboTest releases" at
       "https://github.com/zbsz/mvn-repo/raw/master/releases/"),
     libraryDependencies ++= Seq(
       "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
       "junit" % "junit" % "4.+",
-      "org.scalatest" %% "scalatest" % "2.2.+",
       "org.robolectric" % "robolectric" % "2.+",
       "com.geteit" %% "robotest" % "0.+"
     )
   )
 
-  override def integration = Seq(
+  override def integration = super.integration ++ Seq(
     libraryDependencies ++= Seq(
       "junit" % "junit" % "4.+",
       "com.jayway.android.robotium" % "robotium-solo" % "5.+"
