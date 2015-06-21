@@ -19,7 +19,7 @@ object TrypBuild extends sbt.Build
     publishTo := {
       val nexusUri = sys.props.getOrElse("NEXUS_HOST",
         default = "http://localhost:8081")
-      val repos = s"${nexusUri}/nexus/content/repositories/"
+      val repos = s"$nexusUri/nexus/content/repositories/"
       val tpe = if (isSnapshot.value) "snapshots" else "releases"
       Some(tpe at repos + tpe)
     },
@@ -33,6 +33,9 @@ object TrypBuild extends sbt.Build
   lazy val android = (project in file("android"))
     .settings(common ++ sdk: _*)
     .dependsOn(core)
+
+  lazy val root = (project in file("."))
+    .settings(publish := ())
 
   lazy val sdk = List(
     addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % aVersion)
