@@ -36,6 +36,7 @@ object TrypBuild extends sbt.Build
 
   lazy val root = (project in file("."))
     .settings(publish := ())
+    .aggregate(core, android)
 
   lazy val sdk = List(
     addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % aVersion)
