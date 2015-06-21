@@ -3,11 +3,14 @@ import sbt.Keys._
 
 object TrypBuild extends sbt.Build
 {
+  val snapshot = sys.props.getOrElse("TRYP_SBT_RELEASE", "0") != "1"
+
   val aVersion = "1.3.24"
+  val trypVersion = if (snapshot) "1.3-SNAPSHOT" else aVersion
 
   override lazy val settings = super.settings ++ Seq(
     name := "tryp-plugin",
-    version := aVersion,
+    version := trypVersion,
     organization := "tryp.sbt"
   )
 
@@ -20,7 +23,7 @@ object TrypBuild extends sbt.Build
       val nexusUri = sys.props.getOrElse("NEXUS_HOST",
         default = "http://localhost:8081")
       val repos = s"$nexusUri/nexus/content/repositories/"
-      val tpe = if (isSnapshot.value) "snapshots" else "releases"
+      val tpe = if (snapshot) "snapshots" else "releases"
       Some(tpe at repos + tpe)
     },
     publishArtifact in (Compile, packageDoc) := false,
