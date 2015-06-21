@@ -13,7 +13,18 @@ object TrypBuild extends sbt.Build
 
   lazy val common = List(
     sbtPlugin := true,
-    scalaSource in Compile <<= baseDirectory(_ / "src")
+    scalaSource in Compile <<= baseDirectory(_ / "src"),
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
+    publishTo := {
+      val nexusUri = sys.props.getOrElse("NEXUS_HOST",
+        default = "http://localhost:8081")
+      val repos = s"${nexusUri}/nexus/content/repositories/"
+      val tpe = if (isSnapshot.value) "snapshots" else "releases"
+      Some(tpe at repos + tpe)
+    },
+    publishArtifact in (Compile, packageDoc) := false,
+    publishArtifact in (Compile, packageSrc) := false
   )
 
   lazy val core = (project in file("core"))
