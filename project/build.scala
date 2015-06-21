@@ -3,7 +3,7 @@ import sbt.Keys._
 
 object TrypBuild extends sbt.Build
 {
-  val aVersion = "1.3.23"
+  val aVersion = "1.3.24"
 
   override lazy val settings = super.settings ++ Seq(
     name := "tryp-plugin",
