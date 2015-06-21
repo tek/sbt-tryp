@@ -56,6 +56,10 @@ trait Deps {
   )
 
   def integration: Seq[Setting[_]] = Seq(
+    libraryDependencies ++=
+      "org.scalatest" %% "scalatest" % "2.2.+" ::
+      "org.specs2" %% "specs2-core" % specsV ::
+      Nil
   )
 }
 
