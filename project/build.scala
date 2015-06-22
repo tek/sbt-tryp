@@ -8,12 +8,8 @@ object TrypBuild extends sbt.Build
 {
   val aVersion = "1.3.24"
 
-  override lazy val settings = super.settings ++ Seq(
-    name := "tryp-plugin",
-    organization := "tryp.sbt"
-  )
-
   lazy val common = List(
+    organization := "tryp.sbt",
     sbtPlugin := true,
     scalaSource in Compile <<= baseDirectory(_ / "src"),
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
@@ -22,10 +18,18 @@ object TrypBuild extends sbt.Build
   ) ++ BintrayPlugin.bintrayPublishSettings
 
   lazy val core = (project in file("core"))
-    .settings(common: _*)
+    .settings(
+      (name := "tryp-build") ::
+      common
+      : _*
+    )
 
   lazy val android = (project in file("android"))
-    .settings(common ++ sdk: _*)
+    .settings(
+      (name := "tryp-android") ::
+      common ++ sdk
+      : _*
+    )
     .dependsOn(core)
 
   lazy val root = (project in file("."))
