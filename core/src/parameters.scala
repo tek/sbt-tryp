@@ -29,12 +29,12 @@ trait Deps {
 
   def common = Seq(
     resolvers ++= Seq(
-      Resolver.bintrayRepo("scalaz", "releases")
+      Resolver.sonatypeRepo("releases")
     ),
     libraryDependencies ++= Seq(
       "org.scalaz" %% "scalaz-concurrent" % scalazV
-      )
     )
+  )
 
   def apply(name: String) = {
     common ++ deps.get(name).getOrElse(Seq())
