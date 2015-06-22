@@ -20,7 +20,6 @@ object Paradise {
 
 trait Deps {
   def deps: Map[String, Seq[Setting[_]]] = Map(
-    "root" → common,
     "macros" → macros,
     "unit" → unit,
     "integration" → integration
@@ -38,7 +37,7 @@ trait Deps {
     )
 
   def apply(name: String) = {
-    deps.get(name) getOrElse Seq()
+    common ++ deps.get(name).getOrElse(Seq())
   }
 
   def macros: Seq[Setting[_]] = Seq(
