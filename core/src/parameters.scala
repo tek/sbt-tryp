@@ -68,6 +68,7 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
   var pSettings = ListBuffer[Setting[_]](defaultSettings: _*)
   var pPath = name
   var pRootDeps: Seq[ProjectReference] = Seq()
+  var pDevDeps: Seq[ClasspathDep[ProjectReference]] = Seq()
 
   def export = {
     Export.settings ++=: pSettings
@@ -102,13 +103,23 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
     this
   }
 
-  def project(callback: (Project) => Project = identity) = {
-    callback(Project(name, file(pPath)))
+  val env = sys.props.getOrElse("env", "development")
+
+  def development = env == "development"
+
+  def project(callback: (Project) ⇒ Project = identity) = {
+    val pro = callback(Project(name, file(pPath)))
       .settings(deps(name) ++ pSettings: _*)
+    if (development) pro.dependsOn(pDevDeps: _*) else pro
   }
 
   def dep(pros: ClasspathDep[ProjectReference]*) = {
     project { _.dependsOn(pros: _*) }
+  }
+
+  def devDeps(projects: ClasspathDep[ProjectReference]*) = {
+    pDevDeps ++= projects
+    this
   }
 
   def rootDeps(projects: ProjectReference*) = {
