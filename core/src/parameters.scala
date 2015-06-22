@@ -29,7 +29,8 @@ trait Deps {
 
   def common = Seq(
     resolvers ++= Seq(
-      Resolver.sonatypeRepo("releases")
+      Resolver.sonatypeRepo("releases"),
+      Resolver.bintrayRepo("scalaz", "releases")
     ),
     libraryDependencies ++= Seq(
       "org.scalaz" %% "scalaz-concurrent" % scalazV
