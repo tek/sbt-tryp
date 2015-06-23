@@ -20,6 +20,7 @@ object TrypBuild extends sbt.Build
   lazy val core = (project in file("core"))
     .settings(
       (name := "tryp-build") ::
+      addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0") ::
       common
       : _*
     )
