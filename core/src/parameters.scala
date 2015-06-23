@@ -1,9 +1,9 @@
 package tryp
 
+import scala.collection.mutable.ListBuffer
+
 import sbt._
 import sbt.Keys._
-
-import scala.collection.mutable.ListBuffer
 
 object Export {
   lazy val settings = Seq((exportJars := true))
@@ -30,7 +30,8 @@ trait Deps {
   def common = Seq(
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases"),
-      Resolver.bintrayRepo("scalaz", "releases")
+      Resolver.bintrayRepo("scalaz", "releases"),
+      Resolver.jcenterRepo
     ),
     libraryDependencies ++= Seq(
       "org.scalaz" %% "scalaz-concurrent" % scalazV
