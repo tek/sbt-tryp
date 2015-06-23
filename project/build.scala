@@ -6,7 +6,7 @@ import BintrayKeys._
 
 object TrypBuild extends sbt.Build
 {
-  val aVersion = "1.3.24"
+  val aVersion = "1.4.2"
 
   lazy val common = List(
     organization := "tryp.sbt",
