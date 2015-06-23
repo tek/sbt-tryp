@@ -18,7 +18,7 @@ trait Proguard {
     apkbuildExcludes in Android ++= excludes
   )
 
-  lazy val cache: Seq[ProguardCache] = Seq()
+  lazy val cache: Seq[String] = Seq()
 
   lazy val options: Seq[String] = Seq()
 
@@ -42,15 +42,9 @@ object Tests {
     fork in Test := true,
     javaOptions in Test ++= Seq(
       "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled", "-noverify"
-      ),
-    managedClasspath in Test <++= (
-      platformJars in Android, baseDirectory in dep
-    ) map {
-      case ((j,_), b) => {
-        Seq(Attributed.blank(b / "bin" / "classes"), Attributed.blank(file(j)))
-      }
-    }
-    )
+    ),
+    unmanagedClasspath in Test ++= (bootClasspath in Android).value
+  )
 }
 
 trait AndroidDeps
@@ -161,7 +155,7 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, defaultSettings: _*)
       collectResources in Android <<= collectResources in Android dependsOn (
         compile in Compile in p),
       compile in Compile <<= compile in Compile dependsOn(
-        packageT in Compile in p),
+        sbt.Keys.`package` in Compile in p),
       (localProjects in Android ++= Seq(android.Dependencies.LibraryProject(
         (baseDirectory in p).value)))
         )
