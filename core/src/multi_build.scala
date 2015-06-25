@@ -9,7 +9,7 @@ abstract class MultiBuildBase(deps: Deps = DefaultDeps)
 extends sbt.Build
 {
   override def settings = super.settings ++ Seq(
-    scalaVersion := "2.11.6",
+    scalaVersion := "2.11.7",
     scalacOptions ++= Seq(
       "-feature",
       "-deprecation",
