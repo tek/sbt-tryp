@@ -30,6 +30,7 @@ trait Deps {
   def common = Seq(
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases"),
+      Resolver.sonatypeRepo("snapshots"),
       Resolver.bintrayRepo("scalaz", "releases"),
       Resolver.jcenterRepo
     ),
