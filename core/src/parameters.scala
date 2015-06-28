@@ -5,6 +5,8 @@ import scala.collection.mutable.ListBuffer
 import sbt._
 import sbt.Keys._
 
+import bintray.BintrayPlugin
+
 object Export {
   lazy val settings = Seq((exportJars := true))
 }
@@ -68,10 +70,16 @@ trait Deps {
 class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
 { self: A ⇒
 
+  implicit class TransformIf[A](a: A) {
+    def transformIf(pred: ⇒ Boolean)(transform: A ⇒ A) =
+      if(pred) transform(a) else a
+  }
+
   var pSettings = ListBuffer[Setting[_]](defaultSettings: _*)
   var pPath = name
   var pRootDeps: Seq[ProjectReference] = Seq()
   var pDevDeps: Seq[ClasspathDep[ProjectReference]] = Seq()
+  var pBintray = false
 
   def export = {
     Export.settings ++=: pSettings
@@ -106,6 +114,11 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
     this
   }
 
+  def bintray = {
+    pBintray = true
+    this
+  }
+
   val env = sys.props.getOrElse("env", "development")
 
   def development = env == "development"
@@ -113,7 +126,11 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
   def project(callback: (Project) ⇒ Project = identity) = {
     val pro = callback(Project(name, file(pPath)))
       .settings(deps(name) ++ pSettings: _*)
-    if (development) pro.dependsOn(pDevDeps: _*) else pro
+    pro.transformIf(development) {
+      _.dependsOn(pDevDeps: _*)
+    }.transformIf(!pBintray) {
+      _.disablePlugins(BintrayPlugin)
+    }
   }
 
   def dep(pros: ClasspathDep[ProjectReference]*) = {
