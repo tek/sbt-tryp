@@ -15,7 +15,7 @@ object TrypBuild extends sbt.Build
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
     bintrayRepository in bintray := "sbt-plugins",
     bintrayOrganization in bintray := None
-  ) ++ BintrayPlugin.bintrayPublishSettings
+  )
 
   lazy val core = (project in file("core"))
     .settings(
