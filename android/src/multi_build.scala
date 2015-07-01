@@ -24,7 +24,9 @@ extends MultiBuildBase(deps)
   override def globalSettings =
     platformSetting :: warningSetting :: super.globalSettings
 
-  def p(name: String) =
+  def pb(name: String) =
     new AndroidProjectBuilder(name, deps, proguard, placeholders,
       globalSettings: _*)
+
+  def p(name: String) = pb(name)
 }

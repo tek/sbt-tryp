@@ -30,6 +30,8 @@ extends sbt.Build
 class MultiBuild(deps: Deps = DefaultDeps)
 extends MultiBuildBase
 {
-  def p(name: String) =
+  def pb(name: String) =
     new DefaultProjectBuilder(name, deps, globalSettings: _*)
+
+  def p(name: String) = pb(name)
 }
