@@ -20,11 +20,12 @@ extends sbt.Build
       "-language:experimental.macros",
       "-language:existentials",
       "-language:higherKinds"
-    ),
-    updateOptions := updateOptions.value.withCachedResolution(true)
+    )
   )
 
-  def globalSettings: List[Setting[_]] = Nil
+  def globalSettings: List[Setting[_]] =
+    (updateOptions := updateOptions.value.withCachedResolution(true)) ::
+    Nil
 }
 
 class MultiBuild(deps: Deps = DefaultDeps)
