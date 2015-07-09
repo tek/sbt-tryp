@@ -8,7 +8,9 @@ object DefaultDeps extends Deps
 abstract class MultiBuildBase(deps: Deps = DefaultDeps)
 extends sbt.Build
 {
-  override def settings = super.settings ++ Seq(
+  override def settings = super.settings ++ basicSettings
+
+  val basicSettings = List(
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq(
       "-feature",
@@ -23,9 +25,10 @@ extends sbt.Build
     )
   )
 
+
   def globalSettings: List[Setting[_]] =
     (updateOptions := updateOptions.value.withCachedResolution(true)) ::
-    Nil
+    basicSettings
 }
 
 class MultiBuild(deps: Deps = DefaultDeps)
