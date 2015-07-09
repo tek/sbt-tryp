@@ -10,7 +10,7 @@ extends sbt.Build
 {
   override def settings = super.settings ++ basicSettings
 
-  val basicSettings = List(
+  def basicSettings = List(
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq(
       "-feature",
