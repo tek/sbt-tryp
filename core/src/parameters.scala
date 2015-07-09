@@ -7,6 +7,13 @@ import sbt.Keys._
 
 import bintray.BintrayPlugin
 
+object Env
+{
+  val current = sys.props.getOrElse("env", "development")
+
+  def development = current == "development"
+}
+
 object Export {
   lazy val settings = Seq((exportJars := true))
 }
@@ -65,6 +72,14 @@ trait Deps {
       "org.specs2" %% "specs2-core" % specsV ::
       Nil
   )
+
+  implicit class ModuleIdOps(id: ModuleID)
+  {
+    def devDep = {
+      if (Env.development) id % "provided"
+      else id
+    }
+  }
 }
 
 class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
@@ -119,14 +134,10 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
     this
   }
 
-  val env = sys.props.getOrElse("env", "development")
-
-  def development = env == "development"
-
   def project(callback: (Project) ⇒ Project = identity) = {
     val pro = callback(Project(name, file(pPath)))
       .settings(deps(name) ++ pSettings: _*)
-    pro.transformIf(development) {
+    pro.transformIf(Env.development) {
       _.dependsOn(pDevDeps: _*)
     }.transformIf(!pBintray) {
       _.disablePlugins(BintrayPlugin)
