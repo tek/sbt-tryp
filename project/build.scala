@@ -21,7 +21,7 @@ object TrypBuild extends sbt.Build
     .settings(
       (name := "tryp-build") ::
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0") ::
-      addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "1.1.0") ::
+      addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.0.1") ::
       addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0") ::
       common
       : _*

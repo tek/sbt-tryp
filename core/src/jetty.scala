@@ -3,13 +3,13 @@ package tryp
 import sbt._
 import Keys._
 
-import com.earldouglas.xwp.XwpJetty
-import com.earldouglas.xwp.XwpPlugin._
+import com.earldouglas.xwp.JettyPlugin
+import JettyPlugin._
 
 object JettyDeploy
 extends AutoPlugin
 {
-  override def requires = XwpJetty
+  override def requires = JettyPlugin
   override def trigger = allRequirements
 
   object autoImport {
@@ -20,7 +20,7 @@ extends AutoPlugin
   def timestamp = System.currentTimeMillis / 1000
 
   override lazy val projectSettings = Seq(
-    deploy <<= deployTask dependsOn (Keys.`package` in webapp)
+    deploy <<= deployTask dependsOn Keys.`package`
   )
 
   def deployTask = Def.inputTask {
@@ -32,7 +32,7 @@ extends AutoPlugin
     if (!targetDir.isDirectory) sys.error("argument is not a directory")
     val outName = s"${Keys.name.value}-${Keys.version.value}-$timestamp.war"
     val targetPath = targetDir / outName
-    IO.copyFile(packageWar.value, targetPath)
+    IO.copyFile(Keys.`package`.value, targetPath)
     streams.value.log.info(s"Copied war to ${targetPath}")
   }
 }
