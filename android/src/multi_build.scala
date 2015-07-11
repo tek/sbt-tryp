@@ -27,6 +27,4 @@ extends MultiBuildBase(deps)
   def pb(name: String) =
     new AndroidProjectBuilder(name, deps, proguard, placeholders,
       globalSettings: _*)
-
-  def p(name: String) = pb(name)
 }

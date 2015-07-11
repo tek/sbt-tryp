@@ -36,6 +36,4 @@ extends MultiBuildBase
 {
   def pb(name: String) =
     new DefaultProjectBuilder(name, deps, globalSettings: _*)
-
-  def p(name: String) = pb(name)
 }
