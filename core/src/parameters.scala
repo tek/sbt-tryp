@@ -58,10 +58,12 @@ class TrypId(normalId: DepSpec, providedId: DepSpec, path: String,
 {
   def no = new TrypId(normalId, providedId, path, sub, false)
 
-  def id = if(dev) providedId else normalId
+  def development = Env.development && dev
+
+  def id = if(development) providedId else normalId
 
   def refs = {
-    if (dev) {
+    if (development) {
       val r = if (sub.isEmpty) List(RootProject(Env.localProject(path)))
       else sub map { n ⇒ ProjectRef(Env.localProject(path), n) }
       r.map(a ⇒ a: ClasspathDep[ProjectReference])
