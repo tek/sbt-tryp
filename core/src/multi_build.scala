@@ -36,4 +36,21 @@ extends MultiBuildBase
 {
   def pb(name: String) =
     new DefaultProjectBuilder(name, deps, globalSettings: _*)
+
+  val home = sys.env.get("HOME").getOrElse("/")
+
+  def macroConsole = pb("macro-console")
+    .paradise()
+    .antSrc()
+    .settings(
+      scalacOptions +=
+        s"-Xplugin:$home/.ivy2/cache/org.scalamacros/paradise_" +
+        s"${scalaVersion.value}/jars/paradise_${scalaVersion.value}" +
+        "-2.1.0-M5.jar",
+      initialCommands in console := """
+      val universe: scala.reflect.runtime.universe.type =
+        scala.reflect.runtime.universe
+      import universe._
+      """
+    )
 }
