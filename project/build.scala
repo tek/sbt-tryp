@@ -14,7 +14,18 @@ object TrypBuild extends sbt.Build
     scalaSource in Compile <<= baseDirectory(_ / "src"),
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
     bintrayRepository in bintray := "sbt-plugins",
-    bintrayOrganization in bintray := None
+    bintrayOrganization in bintray := None,
+    scalacOptions ++= Seq(
+      "-feature",
+      "-deprecation",
+      "-unchecked",
+      "-language:implicitConversions",
+      "-language:postfixOps",
+      "-language:reflectiveCalls",
+      "-language:experimental.macros",
+      "-language:existentials",
+      "-language:higherKinds"
+    )
   )
 
   lazy val core = (project in file("core"))
@@ -23,6 +34,10 @@ object TrypBuild extends sbt.Build
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0") ::
       addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.0.1") ::
       addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0") ::
+      (libraryDependencies +=
+        "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary) ::
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.+" cross
+        CrossVersion.full) ::
       common
       : _*
     )

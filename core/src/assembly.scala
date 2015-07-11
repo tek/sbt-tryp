@@ -41,7 +41,6 @@ extends AutoPlugin
     val outName = s"${Keys.name.value}-$timestamp.jar"
     val jarPath = (assemblyOutputPath in assembly).value
     val targetFile = targetDir / outName
-    println(targetFile)
     IO.copyFile(jarPath, targetFile)
   }
 }
