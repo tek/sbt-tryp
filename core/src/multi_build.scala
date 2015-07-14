@@ -50,6 +50,8 @@ extends MultiBuildBase
       val universe: scala.reflect.runtime.universe.type =
         scala.reflect.runtime.universe
       import universe._
+      import scalaz._
+      import Scalaz._
       """
     )
 }
