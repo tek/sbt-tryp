@@ -163,14 +163,19 @@ trait Deps {
 case class ProjectParams(settings: Setts, path: String, bintray: Boolean,
   transitive: Boolean)
 
-abstract class ProjectBuilder[A]
-(name: String, deps: Deps, params: ProjectParams)
-{ self: A ⇒
-
+object ProjectBuilder
+{
   implicit class TransformIf[A](a: A) {
     def transformIf(pred: ⇒ Boolean)(transform: A ⇒ A) =
       if(pred) transform(a) else a
   }
+}
+
+abstract class ProjectBuilder[A]
+(name: String, deps: Deps, params: ProjectParams)
+{ self: A ⇒
+
+  import ProjectBuilder._
 
   def copy(newParams: ProjectParams): A
 
