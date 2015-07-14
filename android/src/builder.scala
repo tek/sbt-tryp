@@ -1,8 +1,11 @@
 package tryp
 
+import reflect.macros.Context
+
 import sbt._
 import Keys._
 import android.Keys._
+import Types._
 
 object Aar
 {
@@ -47,6 +50,28 @@ object Tests {
   )
 }
 
+class AndroidTrypId(plainId: DepSpec, path: String, sub: Seq[String],
+  dev: Boolean)
+extends TrypId(plainId, path, sub, dev)
+{
+  def aRefs = super.projects
+}
+
+object AndroidDeps
+{
+  def adImpl(c: Context)(id: c.Expr[ModuleID], path: c.Expr[String],
+    sub: c.Expr[String]*) =
+  {
+    import c.universe._
+    c.Expr[AndroidTrypId] {
+      q"""new tryp.AndroidTrypId(
+        libraryDependencies += aar($id), $path, Seq(..$sub), true
+      )
+      """
+    }
+  }
+}
+
 trait AndroidDeps
 extends Deps
 {
@@ -67,6 +92,15 @@ extends Deps
     "junit" % "junit" % "4.+",
     "com.jayway.android.robotium" % "robotium-solo" % "5.+"
   )
+
+  def ad(id: ModuleID, path: String, sub: String*) = macro AndroidDeps.adImpl
+
+  def aRefs(name: String) = {
+    (common ++ deps.get(name).toSeq.flatten).collect {
+      case id: AndroidTrypId ⇒ id.aRefs
+      case _ ⇒ List()
+    }.flatten
+  }
 }
 
 object Multidex
@@ -149,18 +183,26 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, defaultSettings: _*)
     this
   }
 
-  override def rootDeps(projects: ProjectReference*) = {
-    projects foreach { p ⇒
-      pSettings ++= Seq(
+  def rootDepSettings(pro: ProjectReference) = {
+    Seq(
       collectResources in Android <<= collectResources in Android dependsOn (
-        compile in Compile in p),
+        compile in Compile in pro),
       compile in Compile <<= compile in Compile dependsOn(
-        sbt.Keys.`package` in Compile in p),
-      (localProjects in Android ++= Seq(android.Dependencies.LibraryProject(
-        (baseDirectory in p).value)))
-        )
-    }
+        sbt.Keys.`package` in Compile in pro),
+      localProjects in Android += android.Dependencies.LibraryProject(
+        (baseDirectory in pro).value)
+    )
+  }
+
+  override def rootDeps(projects: ProjectReference*) = {
+    projects foreach { p ⇒ pSettings ++= rootDepSettings(p) }
     super.rootDeps(projects: _*)
+  }
+
+  override def project(callback: (Project) ⇒ Project = identity) = {
+    val refs = deps.aRefs(name)
+    super.project(callback)
+      .settings(refs flatMap(rootDepSettings): _*)
   }
 
   def androidDeps(projects: Project*) = {

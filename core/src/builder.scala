@@ -12,6 +12,7 @@ import bintray.BintrayPlugin
 object Types
 {
   type DepSpec = Setting[Seq[ModuleID]]
+  type Setts = Seq[Setting[_]]
 }
 import Types._
 
@@ -53,23 +54,28 @@ object Paradise {
   )
 }
 
-class TrypId(normalId: DepSpec, providedId: DepSpec, path: String,
-  sub: Seq[String], dev: Boolean)
+class TrypId(plainId: DepSpec, path: String, sub: Seq[String], dev: Boolean)
 {
-  def no = new TrypId(normalId, providedId, path, sub, false)
+  def no = new TrypId(plainId, path, sub, false)
 
   def development = Env.development && dev
 
-  def id = if(development) providedId else normalId
+  def id = if(development) TrypId.empty else plainId
+
+  def projects = {
+    if (sub.isEmpty) List(RootProject(Env.localProject(path)))
+    else sub map { n ⇒ ProjectRef(Env.localProject(path), n) }
+  }
 
   def refs = {
-    if (development) {
-      val r = if (sub.isEmpty) List(RootProject(Env.localProject(path)))
-      else sub map { n ⇒ ProjectRef(Env.localProject(path), n) }
-      r.map(a ⇒ a: ClasspathDep[ProjectReference])
-    }
+    if (development) projects.map(a ⇒ a: ClasspathDep[ProjectReference])
     else List()
   }
+}
+
+object TrypId
+{
+  def empty = libraryDependencies ++= List()
 }
 
 object Deps
@@ -78,11 +84,9 @@ object Deps
     sub: c.Expr[String]*) =
   {
     import c.universe._
-    val prov = q"""${id} % "provided""""
     c.Expr[TrypId] {
       q"""new tryp.TrypId(
-        libraryDependencies += $id, libraryDependencies += $prov,
-        $path, Seq(..$sub), true
+        libraryDependencies += $id, $path, Seq(..$sub), true
       )
       """
     }
@@ -91,21 +95,15 @@ object Deps
   def dImpl(c: Context)(id: c.Expr[ModuleID]) =
   {
     import c.universe._
-    val prov = q"""${id} % "provided""""
     c.Expr[TrypId] {
-      q"""new tryp.TrypId(
-        libraryDependencies += $id, libraryDependencies += $prov,
-        "", Seq(), false
-      )
-      """
+      q"""new tryp.TrypId(libraryDependencies += $id, "", Seq(), false)"""
     }
   }
 }
 
 trait Deps {
   implicit def ModuleIDtoTrypId(id: ModuleID) =
-    new TrypId(libraryDependencies += id,
-      libraryDependencies += id, "", List(), false)
+    new TrypId(libraryDependencies += id, "", List(), false)
 
   implicit class MapShortcuts[A, B](m: Map[A, _ <: Seq[B]]) {
     def fetch(key: A) = m.get(key).toSeq.flatten
@@ -122,8 +120,8 @@ trait Deps {
 
   def d(id: ModuleID) = macro Deps.dImpl
 
-  def manualDd(normal: DepSpec, prov: DepSpec,
-    path: String, sub: String*) = new TrypId(normal, prov, path, sub, true)
+  def manualDd(normal: DepSpec, path: String, sub: String*) =
+    new TrypId(normal, path, sub, true)
 
   def defaultResolvers = Seq(
       Resolver.sonatypeRepo("releases"),
@@ -135,7 +133,7 @@ trait Deps {
 
   def resolvers: Map[String, Seq[Resolver]] = Map()
 
-  def apply(name: String): Seq[Setting[_]] = {
+  def apply(name: String): Setts = {
     Seq(Keys.resolvers ++= defaultResolvers ++ this.resolvers.fetch(name)) ++
       (common ++ deps.fetch(name)).map(_.id)
   }
@@ -170,7 +168,7 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
       if(pred) transform(a) else a
   }
 
-  var pSettings = ListBuffer[Setting[_]](defaultSettings: _*)
+  var pSettings = ListBuffer[Setting[_]](defaults: _*)
   var pPath = name
   var pRootDeps: Seq[ProjectReference] = Seq()
   var pBintray = false
@@ -185,7 +183,7 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
     this
   }
 
-  def settings(extra: Seq[Setting[_]]) = {
+  def settings(extra: Setts) = {
     extra ++=: pSettings
     this
   }
@@ -214,10 +212,10 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
   }
 
   def project(callback: (Project) ⇒ Project = identity) = {
-    val pro = callback(Project(name, file(pPath)))
+    callback(Project(name, file(pPath)))
       .settings(deps(name) ++ pSettings: _*)
       .dependsOn(deps.refs(name): _*)
-    pro.transformIf(!pBintray) {
+      .transformIf(!pBintray) {
       _.disablePlugins(BintrayPlugin)
     }
   }

@@ -45,6 +45,8 @@ object TrypBuild extends sbt.Build
   lazy val android = (project in file("android"))
     .settings(
       (name := "tryp-android") ::
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.+" cross
+        CrossVersion.full) ::
       common ++ sdk
       : _*
     )
