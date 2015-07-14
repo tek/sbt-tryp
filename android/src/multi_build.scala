@@ -8,8 +8,8 @@ object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
 object DefaultPlaceholders extends Placeholders
 
-abstract class AndroidBuild(
-  deps: Deps = DefaultDeps,
+class AndroidBuild(
+  deps: AndroidDeps = DefaultDeps,
   proguard: Proguard = DefaultProguard,
   placeholders: Placeholders = DefaultPlaceholders
 )
@@ -25,6 +25,5 @@ extends MultiBuildBase(deps)
     platformSetting :: warningSetting :: super.globalSettings
 
   def pb(name: String) =
-    new AndroidProjectBuilder(name, deps, proguard, placeholders,
-      globalSettings: _*)
+    AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings)
 }

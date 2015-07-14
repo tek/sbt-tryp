@@ -39,7 +39,7 @@ trait Placeholders {
 }
 
 object Tests {
-  def settings(dep: Project) = Seq(
+  def settings = Seq(
     testOptions in Test += sbt.Tests.Argument("-oF"),
     exportJars in Test := false,
     fork in Test := true,
@@ -85,7 +85,7 @@ extends Deps
   override def unit = super.unit ++ ids(
     "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
     "junit" % "junit" % "4.+",
-    "com.geteit" %% "robotest" % "0.+"
+    dd("com.geteit" %% "robotest" % "+", "zbsz/robotest")
   )
 
   override def integration = super.integration ++ ids(
@@ -129,58 +129,44 @@ object Multidex
   )
 }
 
-class AndroidProjectBuilder(name: String, deps: Deps, prog: Proguard,
-  placeholders: Placeholders, defaultSettings: Setting[_]*)
-extends ProjectBuilder[AndroidProjectBuilder](name, deps, defaultSettings: _*)
+class AndroidProjectBuilder(name: String, deps: AndroidDeps, prog: Proguard,
+  placeholders: Placeholders, params: ProjectParams)
+extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
 {
-  var pTransitive = false
+  def copy(newParams: ProjectParams) =
+    new AndroidProjectBuilder(name, deps, prog, placeholders, newParams)
 
-  settings(Seq(transitiveSetting, placeholderSetting))
-
-  def test(deps: Project*) = {
-    settings(Tests.settings(deps.head))
-    androidDeps(deps: _*)
-  }
-
-  def testOnly(deps: Project*) = {
-    settings(Seq(scalaSource in Test := baseDirectory.value / "src"))
-    test(deps: _*)
+  def androidTest = {
+    settings(Tests.settings)
   }
 
   def aar = {
-    Aar.settings ++=: pSettings
-    this
+    settings(Aar.settings)
   }
 
   def proguard = {
-    prog.settings ++=: pSettings
-    this
+    settings(prog.settings)
   }
 
-  def transitiveSetting = transitiveAndroidLibs in Android := pTransitive
+  def transitiveSetting = transitiveAndroidLibs in Android := params.transitive
 
   def placeholderSetting =
     manifestPlaceholders in Android := placeholders(name)
 
   def transitive = {
-    pTransitive = true
-    this
+    copy(params.copy(transitive = true))
   }
 
   def multidex(main: Seq[String] = List()) = {
-    multidexDeps
-    multidexSettings(main)
-    this
+    multidexDeps.multidexSettings(main)
   }
 
   def multidexDeps = {
-    pSettings ++= Multidex.deps
-    this
+    settings(Multidex.deps)
   }
 
   def multidexSettings(main: Seq[String]) = {
-    pSettings ++= Multidex.settings(main)
-    this
+    settings(Multidex.settings(main))
   }
 
   def rootDepSettings(pro: ProjectReference) = {
@@ -194,18 +180,22 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, defaultSettings: _*)
     )
   }
 
-  override def rootDeps(projects: ProjectReference*) = {
-    projects foreach { p ⇒ pSettings ++= rootDepSettings(p) }
-    super.rootDeps(projects: _*)
-  }
-
   override def project(callback: (Project) ⇒ Project = identity) = {
     val refs = deps.aRefs(name)
     super.project(callback)
-      .settings(refs flatMap(rootDepSettings): _*)
+      .settings(refs flatMap(rootDepSettings))
+      .settings(transitiveSetting, placeholderSetting)
   }
 
   def androidDeps(projects: Project*) = {
     project { _.androidBuildWith(projects: _*) }
   }
+}
+
+object AndroidProjectBuilder
+{
+  def apply(name: String, deps: AndroidDeps, prog: Proguard,
+  placeholders: Placeholders, defaults: Setts) =
+    new AndroidProjectBuilder(name, deps, prog, placeholders,
+      ProjectParams(defaults, name, false, false))
 }

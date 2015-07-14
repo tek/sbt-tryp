@@ -34,8 +34,7 @@ extends sbt.Build
 class MultiBuild(deps: Deps = DefaultDeps)
 extends MultiBuildBase
 {
-  def pb(name: String) =
-    new DefaultProjectBuilder(name, deps, globalSettings: _*)
+  def pb(name: String) = DefaultProjectBuilder(name, deps, globalSettings)
 
   val home = sys.env.get("HOME").getOrElse("/")
 

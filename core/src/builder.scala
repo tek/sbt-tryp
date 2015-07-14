@@ -160,7 +160,11 @@ trait Deps {
   )
 }
 
-class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
+case class ProjectParams(settings: Setts, path: String, bintray: Boolean,
+  transitive: Boolean)
+
+abstract class ProjectBuilder[A]
+(name: String, deps: Deps, params: ProjectParams)
 { self: A ⇒
 
   implicit class TransformIf[A](a: A) {
@@ -168,65 +172,49 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
       if(pred) transform(a) else a
   }
 
-  var pSettings = ListBuffer[Setting[_]](defaults: _*)
-  var pPath = name
-  var pRootDeps: Seq[ProjectReference] = Seq()
-  var pBintray = false
+  def copy(newParams: ProjectParams): A
 
   def export = {
-    Export.settings ++=: pSettings
-    this
+    settings(Export.settings)
   }
 
   def path(p: String) = {
-    pPath = p
-    this
+    copy(params.copy(path = p))
   }
 
   def settings(extra: Setts) = {
-    extra ++=: pSettings
-    this
+    copy(params.copy(settings = extra ++ params.settings))
   }
 
+  def settingsV(extra: Setting[_]*) = settings(extra)
+
   def paradise(version: String = "2.+") = {
-    pSettings ++= Paradise.settings(version)
-    this
+    settings(Paradise.settings(version))
   }
 
   def antSrc = {
-    pSettings += (scalaSource in Compile := baseDirectory.value / "src")
-    pSettings +=
-      (resourceDirectory in Compile := baseDirectory.value / "resources")
-    pSettings += (scalaSource in Test := baseDirectory.value / "test-src")
-    this
-  }
-
-  def antTest = {
-    pSettings += (scalaSource in Test := baseDirectory.value / "src")
-    this
+    settingsV (
+      scalaSource in Compile := baseDirectory.value / "src",
+      resourceDirectory in Compile := baseDirectory.value / "resources",
+      scalaSource in Test := baseDirectory.value / "test-src"
+    )
   }
 
   def bintray = {
-    pBintray = true
-    this
+    copy(params.copy(bintray = true))
   }
 
   def project(callback: (Project) ⇒ Project = identity) = {
-    callback(Project(name, file(pPath)))
-      .settings(deps(name) ++ pSettings: _*)
+    callback(Project(name, file(params.path)))
+      .settings(deps(name) ++ params.settings: _*)
       .dependsOn(deps.refs(name): _*)
-      .transformIf(!pBintray) {
+      .transformIf(!params.bintray) {
       _.disablePlugins(BintrayPlugin)
     }
   }
 
   def dep(pros: ClasspathDep[ProjectReference]*) = {
     project { _.dependsOn(pros: _*) }
-  }
-
-  def rootDeps(projects: ProjectReference*) = {
-    pRootDeps ++= projects
-    this
   }
 
   def apply() = project()
@@ -236,6 +224,16 @@ class ProjectBuilder[A](name: String, deps: Deps, defaultSettings: Setting[_]*)
   }
 }
 
-class DefaultProjectBuilder(name: String, deps: Deps,
-  defaultSettings: Setting[_]*)
-extends ProjectBuilder[DefaultProjectBuilder](name, deps, defaultSettings: _*)
+class DefaultProjectBuilder(name: String, deps: Deps, params: ProjectParams)
+extends ProjectBuilder[DefaultProjectBuilder](name, deps, params)
+{
+  def copy(newParams: ProjectParams) =
+    new DefaultProjectBuilder(name, deps, newParams)
+}
+
+object DefaultProjectBuilder
+{
+  def apply(name: String, deps: Deps, defaults: Setts) =
+    new DefaultProjectBuilder(name, deps,
+      ProjectParams(defaults, name, false, false))
+}
