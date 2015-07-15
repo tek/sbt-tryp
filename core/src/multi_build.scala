@@ -38,7 +38,7 @@ extends sbt.Build
     prefix map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
   }
 
-  def tryp(name: String) =
+  def tdp(name: String) =
     pb(name).antSrc.paradise().settingsV(namePrefix).export
 
   val home = sys.env.get("HOME").getOrElse("/")
