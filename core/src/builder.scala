@@ -42,7 +42,7 @@ object Env
 }
 
 object Export {
-  lazy val settings = Seq((exportJars := true))
+  lazy val settings = Seq(exportJars := true)
 }
 
 object Paradise {
@@ -213,9 +213,7 @@ abstract class ProjectBuilder[A]
     callback(Project(name, file(params.path)))
       .settings(deps(name) ++ params.settings: _*)
       .dependsOn(deps.refs(name): _*)
-      .transformIf(!params.bintray) {
-      _.disablePlugins(BintrayPlugin)
-    }
+      .transformIf(!params.bintray) { _.disablePlugins(BintrayPlugin) }
   }
 
   def dep(pros: ClasspathDep[ProjectReference]*) = {
