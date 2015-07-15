@@ -17,12 +17,20 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
 {
   val platform = "android-21"
 
-  lazy val platformSetting = (platformTarget in Android := platform)
+  lazy val platformSetting = platformTarget in Android := platform
 
-  lazy val warningSetting = (transitiveAndroidWarning in Android := false)
+  lazy val warningSetting = transitiveAndroidWarning in Android := false
+
+  lazy val layoutSetting = projectLayout in Android :=
+    new ProjectLayout.Wrapped(ProjectLayout.Ant(baseDirectory.value))
+  {
+    override def testSources = (sourceDirectory in Test).value
+    override def testJavaSource = testSources
+    override def testScalaSource = testSources
+  }
 
   override def globalSettings =
-    platformSetting :: warningSetting :: super.globalSettings
+    platformSetting :: warningSetting :: layoutSetting :: super.globalSettings
 
   def pb(name: String) =
     AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings)
