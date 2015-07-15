@@ -5,7 +5,7 @@ import Keys._
 
 object DefaultDeps extends Deps
 
-abstract class MultiBuildBase(deps: Deps = DefaultDeps)
+abstract class MultiBuildBase[A <: ProjectBuilder[A]](deps: Deps = DefaultDeps)
 extends sbt.Build
 {
   override def settings = super.settings ++ basicSettings
@@ -29,12 +29,17 @@ extends sbt.Build
   def globalSettings: List[Setting[_]] =
     (updateOptions := updateOptions.value.withCachedResolution(true)) ::
     basicSettings
-}
 
-class MultiBuild(deps: Deps = DefaultDeps)
-extends MultiBuildBase
-{
-  def pb(name: String) = DefaultProjectBuilder(name, deps, globalSettings)
+  def pb(name: String): A
+
+  val prefix: Option[String] = None
+
+  lazy val namePrefix = name := {
+    prefix map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
+  }
+
+  def tryp(name: String) =
+    pb(name).antSrc.paradise().settingsV(namePrefix).export
 
   val home = sys.env.get("HOME").getOrElse("/")
 
@@ -54,4 +59,10 @@ extends MultiBuildBase
       import Scalaz._
       """
     )
+}
+
+class MultiBuild(deps: Deps = DefaultDeps)
+extends MultiBuildBase[DefaultProjectBuilder]
+{
+  def pb(name: String) = DefaultProjectBuilder(name, deps, globalSettings)
 }

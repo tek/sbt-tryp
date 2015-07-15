@@ -13,7 +13,7 @@ class AndroidBuild(
   proguard: Proguard = DefaultProguard,
   placeholders: Placeholders = DefaultPlaceholders
 )
-extends MultiBuildBase(deps)
+extends MultiBuildBase[AndroidProjectBuilder](deps)
 {
   val platform = "android-21"
 
