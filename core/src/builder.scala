@@ -200,8 +200,10 @@ abstract class ProjectBuilder[A]
   def antSrc = {
     settingsV (
       sourceDirectory in Compile := baseDirectory.value / "src",
+      scalaSource in Compile := (sourceDirectory in Compile).value,
       resourceDirectory in Compile := baseDirectory.value / "resources",
-      sourceDirectory in Test := baseDirectory.value / "test-src"
+      sourceDirectory in Test := baseDirectory.value / "test-src",
+      scalaSource in Test := (sourceDirectory in Test).value
     )
   }
 
