@@ -43,10 +43,16 @@ extends sbt.Build
 
   val home = sys.env.get("HOME").getOrElse("/")
 
-  def macroConsole = pb("macro-console")
-    .paradise()
-    .antSrc()
-    .settings(
+  val root: Project
+
+  def metaProject(n: String) = tdp(n)
+    .path(".")
+    .settingsV(target := (target in root).value / name.value)
+
+  def mpb(name: String) = metaProject(name)
+
+  lazy val macroConsole = metaProject("macro-console")
+    .settingsV(
       scalacOptions +=
         s"-Xplugin:$home/.ivy2/cache/org.scalamacros/paradise_" +
         s"${scalaVersion.value}/jars/paradise_${scalaVersion.value}" +
@@ -58,10 +64,10 @@ extends sbt.Build
       import scalaz._
       import Scalaz._
       """
-    )
+    )()
 }
 
-class MultiBuild(deps: Deps = DefaultDeps)
+abstract class MultiBuild(deps: Deps = DefaultDeps)
 extends MultiBuildBase[DefaultProjectBuilder]
 {
   def pb(name: String) = DefaultProjectBuilder(name, deps, globalSettings)

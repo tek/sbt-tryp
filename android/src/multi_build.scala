@@ -8,7 +8,7 @@ object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
 object DefaultPlaceholders extends Placeholders
 
-class AndroidBuild(
+abstract class AndroidBuild(
   deps: AndroidDeps = DefaultDeps,
   proguard: Proguard = DefaultProguard,
   placeholders: Placeholders = DefaultPlaceholders
