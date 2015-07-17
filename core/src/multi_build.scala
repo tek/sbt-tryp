@@ -39,7 +39,7 @@ extends sbt.Build
   }
 
   def tdp(name: String) =
-    pb(name).antSrc.paradise().settingsV(namePrefix).export
+    pb(name).antSrc.paradise().settingsV(namePrefix)
 
   val home = sys.env.get("HOME").getOrElse("/")
 
