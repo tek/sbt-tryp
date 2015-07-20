@@ -51,7 +51,7 @@ extends sbt.Build
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
-  val root: Project
+  lazy val root = pb("root").path(".")()
 
   def metaProject(n: String) = tdp(n)
     .path(".")
