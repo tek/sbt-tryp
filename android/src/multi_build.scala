@@ -34,4 +34,6 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
 
   def pb(name: String) =
     AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings)
+
+  override def tdp(name: String) = super.tdp(name).export
 }
