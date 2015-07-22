@@ -23,11 +23,11 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
 
   lazy val layoutSetting = projectLayout in Android :=
     new ProjectLayout.Wrapped(ProjectLayout.Ant(baseDirectory.value))
-  {
-    override def testSources = (sourceDirectory in Test).value
-    override def testJavaSource = testSources
-    override def testScalaSource = testSources
-  }
+    {
+      override def testSources = (sourceDirectory in Test).value
+      override def testJavaSource = testSources
+      override def testScalaSource = testSources
+    }
 
   override def globalSettings =
     platformSetting :: warningSetting :: layoutSetting :: super.globalSettings
