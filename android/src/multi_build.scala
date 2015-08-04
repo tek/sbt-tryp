@@ -27,6 +27,8 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
       override def testSources = (sourceDirectory in Test).value
       override def testJavaSource = testSources
       override def testScalaSource = testSources
+      override def bin = (target in Compile).value / "bin"
+      override def gen = (target in Compile).value / "gen"
     }
 
   override def globalSettings =
