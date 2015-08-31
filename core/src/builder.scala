@@ -143,10 +143,11 @@ trait Deps {
   }
 
   val scalazV = "7.1.+"
-  val specsV = "3.6"
+  val specsV = "3.6.4"
 
   def common = ids(
-    "org.scalaz" %% "scalaz-concurrent" % scalazV
+    "org.scalaz" %% "scalaz-concurrent" % scalazV,
+    "org.scalaz.stream" %% "scalaz-stream" % "0.7.2a"
   )
 
   def unit = ids(
