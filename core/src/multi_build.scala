@@ -59,7 +59,9 @@ extends sbt.Build
 
   def mpb(name: String) = metaProject(name)
 
-  lazy val macroConsole = metaProject("macro-console")
+  lazy val macroConsole = macroConsoleBuilder()
+
+  lazy val macroConsoleBuilder = metaProject("macro-console")
     .settingsV(
       scalacOptions ++= {
         List(paradiseJar.value map(p ⇒ s"-Xplugin:$p")).flatten
@@ -76,7 +78,7 @@ extends sbt.Build
         """
         if(paradiseJar.value.isDefined) uni + sz else sz
       }
-    )()
+    )
 }
 
 abstract class MultiBuild(deps: Deps = DefaultDeps)

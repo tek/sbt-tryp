@@ -38,4 +38,10 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
     AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings)
 
   override def tdp(name: String) = super.tdp(name).export
+
+  override lazy val macroConsole = macroConsoleBuilder
+    .settingsV(
+      updateCheck := {},
+      antLayoutDetector := {}
+    )()
 }
