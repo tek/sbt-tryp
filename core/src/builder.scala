@@ -76,6 +76,8 @@ class TrypId(plainId: DepSpec, path: String, sub: Seq[String], dev: Boolean)
 object TrypId
 {
   def empty = libraryDependencies ++= List()
+
+  def plain(id: DepSpec) = new TrypId(id, "", Seq(), false)
 }
 
 object Deps
@@ -92,12 +94,9 @@ object Deps
     }
   }
 
-  def dImpl(c: Context)(id: c.Expr[ModuleID]) =
-  {
+  def dImpl(c: Context)(id: c.Expr[ModuleID]) = {
     import c.universe._
-    c.Expr[TrypId] {
-      q"""new tryp.TrypId(libraryDependencies += $id, "", Seq(), false)"""
-    }
+    c.Expr[TrypId] { q"tryp.TrypId.plain(libraryDependencies += $id)" }
   }
 }
 
