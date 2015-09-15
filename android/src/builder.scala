@@ -18,7 +18,13 @@ trait Proguard {
     proguardScala in Android := true,
     proguardCache in Android ++= cache,
     proguardOptions in Android ++= options,
-    apkbuildExcludes in Android ++= excludes
+    apkbuildExcludes in Android ++= excludes,
+    packagingOptions in Android :=
+      PackagingOptions(
+        (apkbuildExcludes in Android).value,
+        (apkbuildPickFirsts in Android).value,
+        merges
+      )
   )
 
   lazy val cache: Seq[String] = Seq()
@@ -26,6 +32,8 @@ trait Proguard {
   lazy val options: Seq[String] = Seq()
 
   lazy val excludes: Seq[String] = Seq()
+
+  lazy val merges: Seq[String] = Seq()
 }
 
 trait Placeholders {
