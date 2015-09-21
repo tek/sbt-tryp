@@ -93,7 +93,7 @@ extends Deps
   override def unit = super.unit ++ ids(
     "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
     "junit" % "junit" % "4.+",
-    dd("com.geteit" %% "robotest" % "+", "zbsz/robotest")
+    "com.geteit" %% "robotest" % "+"
   )
 
   override def integration = ids(
