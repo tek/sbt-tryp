@@ -132,13 +132,17 @@ trait Deps {
 
   def resolvers: Map[String, Seq[Resolver]] = Map()
 
+  // `libraryDependencies += id` for each dep
+  // if env is development, devdeps return empty settings
   def apply(name: String): Setts = {
     Seq(Keys.resolvers ++= defaultResolvers ++ this.resolvers.fetch(name)) ++
       (common ++ deps.fetch(name)).map(_.id)
   }
 
+  // ProjectRef instances for each devdep's subprojects
+  // if env isn't development, nothing is returned
   def refs(name: String) = {
-    (common ++ deps.get(name).toSeq.flatten).map(_.refs).flatten
+    (common ++ deps.fetch(name)).map(_.refs).flatten
   }
 
   val scalazV = "7.1.+"
@@ -160,8 +164,7 @@ trait Deps {
   )
 }
 
-case class ProjectParams(settings: Setts, path: String, bintray: Boolean,
-  transitive: Boolean)
+case class ProjectParams(settings: Setts, path: String, bintray: Boolean)
 
 object ProjectBuilder
 {
@@ -211,21 +214,21 @@ abstract class ProjectBuilder[A]
     copy(params.copy(bintray = true))
   }
 
-  def project(callback: (Project) ⇒ Project = identity) = {
-    callback(Project(name, file(params.path)))
+  def project = {
+    Project(name, file(params.path))
       .settings(deps(name) ++ params.settings: _*)
       .dependsOn(deps.refs(name): _*)
       .transformIf(!params.bintray) { _.disablePlugins(BintrayPlugin) }
   }
 
   def dep(pros: ClasspathDep[ProjectReference]*) = {
-    project { _.dependsOn(pros: _*) }
+    project.dependsOn(pros: _*)
   }
 
-  def apply() = project()
+  def apply() = project
 
   def aggregate(projects: ProjectReference*) = {
-    project().aggregate(projects: _*)
+    project.aggregate(projects: _*)
   }
 }
 
@@ -240,5 +243,5 @@ object DefaultProjectBuilder
 {
   def apply(name: String, deps: Deps, defaults: Setts) =
     new DefaultProjectBuilder(name, deps,
-      ProjectParams(defaults, name, false, false))
+      ProjectParams(defaults, name, false))
 }

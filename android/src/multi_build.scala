@@ -17,8 +17,6 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
 {
   val platform = "android-21"
 
-  lazy val platformSetting = platformTarget in Android := platform
-
   lazy val warningSetting = transitiveAndroidWarning in Android := false
 
   lazy val layoutSetting = projectLayout in Android :=
@@ -31,11 +29,11 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
       override def gen = (target in Compile).value / "gen"
     }
 
-  override def globalSettings =
-    platformSetting :: warningSetting :: layoutSetting :: super.globalSettings
+  def adefaults = warningSetting :: layoutSetting :: Nil
 
   def pb(name: String) =
-    AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings)
+    AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings,
+      adefaults, platform)
 
   override def tdp(name: String) = super.tdp(name).export
 

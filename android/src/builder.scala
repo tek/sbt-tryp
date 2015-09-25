@@ -7,11 +7,6 @@ import Keys._
 import android.Keys._
 import Types._
 
-object Aar
-{
-  lazy val settings = android.Plugin.androidBuildAar ++ Export.settings
-}
-
 trait Proguard {
   lazy val settings = Seq(
     useProguard in Android := true,
@@ -131,33 +126,44 @@ object Multidex
   )
 }
 
+case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
+  settings: Setts)
+
 class AndroidProjectBuilder(name: String, deps: AndroidDeps, prog: Proguard,
-  placeholders: Placeholders, params: ProjectParams)
+  placeholders: Placeholders, params: ProjectParams, aparams: AndroidParams)
 extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
 {
+  import ProjectBuilder._
+
   def copy(newParams: ProjectParams) =
-    new AndroidProjectBuilder(name, deps, prog, placeholders, newParams)
+    new AndroidProjectBuilder(name, deps, prog, placeholders, newParams,
+      aparams)
+
+  def acopy(newParams: AndroidParams) =
+    new AndroidProjectBuilder(name, deps, prog, placeholders, params,
+      newParams)
 
   def androidTest = {
     settings(Tests.settings)
   }
 
   def aar = {
-    settings(Aar.settings)
+    acopy(aparams.copy(aar = true))
   }
 
   def proguard = {
     settings(prog.settings)
   }
 
-  def transitiveSetting = transitiveAndroidLibs in Android := params.transitive
+  def transitiveSetting =
+    transitiveAndroidLibs in Android := aparams.transitive
 
   def placeholderSetting =
     manifestPlaceholders in Android := placeholders(name)
 
-  def transitive = {
-    copy(params.copy(transitive = true))
-  }
+  def platformSetting = platformTarget in Android := aparams.target
+
+  def transitive = acopy(aparams.copy(transitive = true))
 
   def multidex(main: Seq[String] = List()) = {
     multidexDeps.multidexSettings(main)
@@ -173,7 +179,7 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
 
   def rootDepSettings(pro: ProjectReference) = {
     Seq(
-      collectResources in Android <<= collectResources in Android dependsOn (
+      collectResources in Android <<= collectResources in Android dependsOn(
         compile in Compile in pro),
       compile in Compile <<= compile in Compile dependsOn(
         sbt.Keys.`package` in Compile in pro),
@@ -182,22 +188,33 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
     )
   }
 
-  override def project(callback: (Project) ⇒ Project = identity) = {
+  def aproject(arefs: ProjectReference*) = {
     val refs = deps.aRefs(name)
-    super.project(callback)
-      .settings(refs flatMap(rootDepSettings))
-      .settings(transitiveSetting, placeholderSetting)
+    project
+      .androidBuildWith(refs ++ arefs: _*)
+      .transformIf(aparams.aar)(_.settings(android.Plugin.buildAar: _*))
+      .settings(aparams.settings: _*)
+      .settings(transitiveSetting, placeholderSetting, platformSetting)
   }
 
-  def androidDeps(projects: Project*) = {
-    project { _.androidBuildWith(projects: _*) }
+  def androidDeps(projects: ProjectReference*) = {
+    aproject(projects: _*)
   }
+
+  override def dep(pros: ClasspathDep[ProjectReference]*) = {
+    aproject().dependsOn(pros: _*)
+  }
+
+  override def apply() = aproject()
 }
 
 object AndroidProjectBuilder
 {
   def apply(name: String, deps: AndroidDeps, prog: Proguard,
-  placeholders: Placeholders, defaults: Setts) =
+  placeholders: Placeholders, defaults: Setts, adefaults: Setts,
+  platform: String) =
     new AndroidProjectBuilder(name, deps, prog, placeholders,
-      ProjectParams(defaults, name, false, false))
+      ProjectParams(defaults, name, false),
+      AndroidParams(false, platform, false, adefaults)
+    )
 }
