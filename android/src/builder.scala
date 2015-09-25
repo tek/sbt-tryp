@@ -18,13 +18,7 @@ trait Proguard {
     proguardScala in Android := true,
     proguardCache in Android ++= cache,
     proguardOptions in Android ++= options,
-    apkbuildExcludes in Android ++= excludes,
-    packagingOptions in Android :=
-      PackagingOptions(
-        (apkbuildExcludes in Android).value,
-        (apkbuildPickFirsts in Android).value,
-        merges
-      )
+    packagingOptions in Android := PackagingOptions(excludes, Seq(), merges)
   )
 
   lazy val cache: Seq[String] = Seq()
@@ -114,7 +108,7 @@ extends Deps
 object Multidex
 {
   def settings(main: Seq[String]) = Seq(
-    dexMainFileClasses in Android := main ++ Seq(
+    dexMainClasses in Android := main ++ Seq(
       "android/support/multidex/BuildConfig.class",
       "android/support/multidex/MultiDex$V14.class",
       "android/support/multidex/MultiDex$V19.class",
@@ -127,7 +121,7 @@ object Multidex
       "android/support/multidex/ZipUtil.class"
     ),
     dexMulti in Android := true,
-    dexMinimizeMainFile in Android := false
+    dexMinimizeMain in Android := false
   )
 
   def deps = Seq(
