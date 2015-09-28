@@ -189,6 +189,7 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
       .transformIf(aparams.aar)(_.settings(android.Plugin.buildAar: _*))
       .settings(aparams.settings: _*)
       .settings(transitiveSetting, platformSetting)
+      .enablePlugins(TrypAndroid)
   }
 
   def androidDeps(projects: ProjectReference*) = {
