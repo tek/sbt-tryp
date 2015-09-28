@@ -62,7 +62,7 @@ object AndroidDeps
     import c.universe._
     c.Expr[AndroidTrypId] {
       q"""new tryp.AndroidTrypId(
-        libraryDependencies += aar($id), $path, Seq(..$sub), true
+        libraryDependencies += android.Keys.aar($id), $path, Seq(..$sub), true
       )
       """
     }
@@ -143,6 +143,10 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
     new AndroidProjectBuilder(name, deps, prog, placeholders, params,
       newParams)
 
+  def asettings(extra: Setts) = {
+    acopy(aparams.copy(settings = extra ++ aparams.settings))
+  }
+
   def androidTest = {
     settings(Tests.settings)
   }
@@ -152,7 +156,7 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
   }
 
   def proguard = {
-    settings(prog.settings)
+    asettings(prog.settings)
   }
 
   def transitiveSetting =
@@ -170,36 +174,28 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
   }
 
   def multidexDeps = {
-    settings(Multidex.deps)
+    asettings(Multidex.deps)
   }
 
   def multidexSettings(main: Seq[String]) = {
-    settings(Multidex.settings(main))
-  }
-
-  def rootDepSettings(pro: ProjectReference) = {
-    Seq(
-      collectResources in Android <<= collectResources in Android dependsOn(
-        compile in Compile in pro),
-      compile in Compile <<= compile in Compile dependsOn(
-        sbt.Keys.`package` in Compile in pro),
-      localProjects in Android += android.Dependencies.LibraryProject(
-        (baseDirectory in pro).value)
-    )
+    asettings(Multidex.settings(main))
   }
 
   def aproject(arefs: ProjectReference*) = {
     val refs = deps.aRefs(name)
     project
+      .settings(placeholderSetting)
       .androidBuildWith(refs ++ arefs: _*)
       .transformIf(aparams.aar)(_.settings(android.Plugin.buildAar: _*))
       .settings(aparams.settings: _*)
-      .settings(transitiveSetting, placeholderSetting, platformSetting)
+      .settings(transitiveSetting, platformSetting)
   }
 
   def androidDeps(projects: ProjectReference*) = {
     aproject(projects: _*)
   }
+
+  def <<<(pros: ProjectReference*) = androidDeps(pros: _*)
 
   override def dep(pros: ClasspathDep[ProjectReference]*) = {
     aproject().dependsOn(pros: _*)

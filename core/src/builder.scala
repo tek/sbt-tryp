@@ -24,10 +24,16 @@ object Env
 
   val projectBaseEnvVar = "TRYP_SCALA_PROJECT_DIR"
 
-  lazy val projectBase = new File(
+  val projectBaseProp = "tryp.projectsdir"
+
+  val projectBasePath = sys.props.getOrElse(
+    projectBaseProp,
     sys.env.get(projectBaseEnvVar)
-      .getOrElse(sys.error(s"Need to set $$${projectBaseEnvVar}"))
+      .getOrElse(sys.error(
+        s"Need to pass -D$projectBaseProp or set $$$projectBaseEnvVar"))
   )
+
+  lazy val projectBase = new File(projectBasePath)
 
   def cloneRepo(path: String, dirname: String) = {
     s"hub clone $path ${Env.projectBase}/$dirname" !
@@ -186,9 +192,11 @@ abstract class ProjectBuilder[A]
     settings(Export.settings)
   }
 
-  def path(p: String) = {
-    copy(params.copy(path = p))
+  def path(pt: String) = {
+    copy(params.copy(path = pt))
   }
+
+  def at(pt: String) = path(pt)
 
   def settings(extra: Setts) = {
     copy(params.copy(settings = extra ++ params.settings))
@@ -226,6 +234,8 @@ abstract class ProjectBuilder[A]
   }
 
   def apply() = project
+
+  def <<(pros: ClasspathDep[ProjectReference]*) = dep(pros: _*)
 
   def aggregate(projects: ProjectReference*) = {
     project.aggregate(projects: _*)
