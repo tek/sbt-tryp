@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <style name='pkg' parent='core' />
+  <style name='pkg2' parent='app' />
+  <style name='pkg3' parent='Theme.AppCompat.Light.NoActionBar' />
+</resources>

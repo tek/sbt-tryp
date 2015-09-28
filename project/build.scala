@@ -4,9 +4,11 @@ import sbt.Keys._
 import bintray._
 import BintrayKeys._
 
+import ScriptedPlugin._
+
 object TrypBuild extends sbt.Build
 {
-  val aVersion = "1.5.0"
+  val aVersion = sys.props.getOrElse("sdk", "1.5.0")
 
   lazy val common = List(
     organization := "tryp.sbt",
@@ -53,8 +55,24 @@ object TrypBuild extends sbt.Build
     .dependsOn(core)
 
   lazy val root = (project in file("."))
-    .settings(publish := ())
+    .settings(publish := (), publishLocal := ())
     .aggregate(core, android)
+
+  lazy val scripted = (project in file("scripted"))
+    .settings(scriptedSettings: _*)
+    .settings(
+      sbtTestDirectory := baseDirectory.value / "test",
+      scriptedRun <<=
+        scriptedRun dependsOn(publishLocal in core, publishLocal in android),
+      scriptedBufferLog := false,
+      scriptedLaunchOpts ++= Seq(
+        "-Xmx4096m",
+        "-XX:MaxPermSize=1024m",
+        "-Dsdk=1.5.1-SNAPSHOT",
+        s"-Dtryp.projectsdir=${baseDirectory.value / "meta"}",
+        s"-Dtryp.version=${version.value}"
+      )
+    )
 
   lazy val sdk = List(
     addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % aVersion)
