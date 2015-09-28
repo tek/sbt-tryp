@@ -37,6 +37,7 @@ object TrypBuild extends sbt.Build
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0"),
       addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.0.1"),
       addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0"),
+      addSbtPlugin("com.hanhuy.sbt" % "android-protify" % "1.1.5"),
       libraryDependencies +=
         "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary,
       addCompilerPlugin(
