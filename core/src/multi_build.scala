@@ -7,36 +7,14 @@ object DefaultDeps extends Deps
 
 abstract class MultiBuildBase[A <: ProjectBuilder[A]](deps: Deps = DefaultDeps)
 extends sbt.Build
+with Tryplug
 {
   override def settings = super.settings ++ basicSettings
 
   val paradiseJar = settingKey[Option[File]](
     "location of the macro paradise jar")
 
-  def basicSettings: List[Setting[_]] = List(
-    scalaVersion := "2.11.7",
-    scalacOptions ++= Seq(
-      "-feature",
-      "-deprecation",
-      "-unchecked",
-      "-language:implicitConversions",
-      "-language:postfixOps",
-      "-language:reflectiveCalls",
-      "-language:experimental.macros",
-      "-language:existentials",
-      "-language:higherKinds"
-    ),
-    paradiseJar := {
-      val name = s"paradise_${scalaVersion.value}"
-      (home / ".ivy2" / "cache" / "org.scalamacros" / name / "jars" *
-        s"$name*.jar").get.headOption
-    }
-  )
-
-
-  def globalSettings: List[Setting[_]] =
-    (updateOptions := updateOptions.value.withCachedResolution(true)) ::
-    basicSettings
+  def globalSettings: List[Setting[_]] = basicSettings
 
   def pb(name: String): A
 
