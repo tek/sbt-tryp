@@ -9,7 +9,7 @@ object TrypBuildKeys
     "location of the macro paradise jar")
 }
 
-object TrypBuild
+object TrypBuildPlugin
 extends AutoPlugin
 with Tryplug
 {
