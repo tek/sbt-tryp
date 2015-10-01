@@ -39,7 +39,7 @@ with Tryplug
   lazy val macroConsoleBuilder = metaProject("macro-console")
     .settingsV(
       scalacOptions ++= {
-        List(paradiseJar.value map(p ⇒ s"-Xplugin:$p")).flatten
+        List((paradiseJar in Global).value map(p ⇒ s"-Xplugin:$p")).flatten
       },
       initialCommands in console := {
         val uni = """
@@ -51,7 +51,7 @@ with Tryplug
           import scalaz._
           import Scalaz._
         """
-        if(paradiseJar.value.isDefined) uni + sz else sz
+        if((paradiseJar in Global).value.isDefined) uni + sz else sz
       }
     )
 }
