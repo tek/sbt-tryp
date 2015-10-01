@@ -32,7 +32,7 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
   def adefaults = warningSetting :: layoutSetting :: Nil
 
   def pb(name: String) =
-    AndroidProjectBuilder(name, deps, proguard, placeholders, globalSettings,
+    AndroidProjectBuilder(name, deps, proguard, placeholders, Nil,
       adefaults, platform)
 
   override def tdp(name: String) = super.tdp(name).export

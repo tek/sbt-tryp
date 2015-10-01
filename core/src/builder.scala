@@ -251,7 +251,7 @@ extends ProjectBuilder[DefaultProjectBuilder](name, deps, params)
 
 object DefaultProjectBuilder
 {
-  def apply(name: String, deps: Deps, defaults: Setts) =
+  def apply(name: String, deps: Deps, defaults: Setts = Nil) =
     new DefaultProjectBuilder(name, deps,
       ProjectParams(defaults, name, false))
 }

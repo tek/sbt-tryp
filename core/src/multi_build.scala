@@ -9,12 +9,9 @@ abstract class MultiBuildBase[A <: ProjectBuilder[A]](deps: Deps = DefaultDeps)
 extends sbt.Build
 with Tryplug
 {
+  import TrypBuild.autoImport._
+
   override def settings = super.settings ++ basicSettings
-
-  val paradiseJar = settingKey[Option[File]](
-    "location of the macro paradise jar")
-
-  def globalSettings: List[Setting[_]] = basicSettings
 
   def pb(name: String): A
 
@@ -62,5 +59,5 @@ with Tryplug
 abstract class MultiBuild(deps: Deps = DefaultDeps)
 extends MultiBuildBase[DefaultProjectBuilder]
 {
-  def pb(name: String) = DefaultProjectBuilder(name, deps, globalSettings)
+  def pb(name: String) = DefaultProjectBuilder(name, deps)
 }

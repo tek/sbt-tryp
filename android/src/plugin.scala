@@ -37,7 +37,7 @@ extends AutoPlugin
     manifestTemplate.value → (projectLayout in Android).value.manifest → tokens
   }
 
-  override lazy val projectSettings = Seq(
+  override lazy val projectSettings = super.projectSettings ++ Seq(
     generateManifest := false,
     metaRes := (baseDirectory in ThisBuild).value / "meta" / "resources",
     manifestTemplate := metaRes.value / "AndroidManifest.xml",
