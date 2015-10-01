@@ -14,6 +14,7 @@ extends AutoPlugin
 with Tryplug
 {
   override def requires = plugins.JvmPlugin
+  override def trigger = allRequirements
 
   val autoImport = TrypBuildKeys
   import autoImport._
