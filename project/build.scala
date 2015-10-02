@@ -18,25 +18,25 @@ with Tryplug
       "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary,
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.+" cross CrossVersion.full)
-  ) ++ basicPluginSettings
+  )
 
-  lazy val core = (project in file("core"))
+  lazy val core = pluginSubProject("core")
     .settings(common: _*)
     .settings(
       name := "tryp-build",
-      addSbtPlugin("tryp" % "tryplug" % "1"),
+      addSbtPlugin("tryp.sbt" % "tryplug-macros" % "2"),
+      addSbtPlugin("tryp.sbt" % "tryplug" % "2"),
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0"),
       addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.0.1"),
       addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")
     )
 
-  lazy val android = (project in file("android"))
-    .settings(
-      name := "tryp-android"
-    )
-    .settings(common ++ aPluginDeps)
-    .dependsOn(core)
-    .dependsOn(devdeps: _*)
+  lazy val android = pluginSubProject("android")
+      .settings(
+        name := "tryp-android"
+      )
+      .settings(common: _*)
+      .dependsOn(core)
 
   lazy val root = (project in file("."))
     .settings(publish := (), publishLocal := ())
@@ -60,22 +60,22 @@ with Tryplug
 
   val wantDevdeps = false
 
-  def devdeps = {
-    if (wantDevdeps)
-      List(sdkLocal, protifyLocal) map(a ⇒ a: ClasspathDep[ProjectReference])
-    else Nil
+  object TrypDeps
+  extends DepsBase
+  {
+    override def deps = super.deps ++ Map(
+      "android" → android
+    )
+
+
+    val huy = "com.hanhuy.sbt"
+    val sdkName = "android-sdk-plugin"
+
+    val android = ids(
+      pd(huy, sdkName, sdkVersion, s"pfn/$sdkName"),
+      pd(huy, "android-protify", protifyVersion, "pfn/protify", "plugin")
+    )
   }
 
-  def aPluginDeps = {
-    if (wantDevdeps) Nil
-    else List(protify, sdk)
-  }
-
-  lazy val protify =
-    plugin("com.hanhuy.sbt", "android-protify", protifyVersion)
-
-  lazy val sdk = plugin("com.hanhuy.sbt", "android-sdk-plugin", sdkVersion)
-
-  lazy val sdkLocal = RootProject(file("../android-sdk-plugin"))
-  lazy val protifyLocal = ProjectRef(file("../protify"), "plugin")
+  override def deps = TrypDeps
 }

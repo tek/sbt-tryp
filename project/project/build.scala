@@ -10,7 +10,12 @@ extends Build
     Resolver.url(name, link)(Resolver.ivyStylePatterns)
   }
 
+  override def settings = super.settings ++ Seq(
+    resolvers += resolver
+  )
+
   lazy val root = project in file(".") settings(
-    addSbtPlugin("tryp" % "tryplug" % "1")
+    addSbtPlugin("tryp.sbt" % "tryplug-macros" % "2"),
+    addSbtPlugin("tryp.sbt" % "tryplug" % "2")
   )
 }
