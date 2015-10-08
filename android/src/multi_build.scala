@@ -29,7 +29,7 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
       override def gen = (target in Compile).value / "gen"
     }
 
-  def adefaults = warningSetting :: layoutSetting :: Nil
+  def adefaults: List[Setting[_]] = warningSetting :: layoutSetting :: Nil
 
   def pb(name: String) =
     AndroidProjectBuilder(name, deps, proguard, placeholders, Nil,
