@@ -13,7 +13,7 @@ with Tryplug
 
   override def settings = super.settings ++ basicSettings
 
-  def pb(name: String): A
+  def pb(name: String) = DefaultProjectBuilder(name, deps)
 
   val prefix: Option[String] = None
 
@@ -21,8 +21,7 @@ with Tryplug
     prefix map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
   }
 
-  def tdp(name: String) =
-    pb(name).antSrc.paradise().settingsV(namePrefix)
+  def tdp(name: String) = pb(name).antSrc.paradise().settingsV(namePrefix)
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
@@ -59,5 +58,4 @@ with Tryplug
 abstract class MultiBuild(deps: Deps = DefaultDeps)
 extends MultiBuildBase[DefaultProjectBuilder]
 {
-  def pb(name: String) = DefaultProjectBuilder(name, deps)
 }

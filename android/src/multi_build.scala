@@ -31,11 +31,14 @@ extends MultiBuildBase[AndroidProjectBuilder](deps)
 
   def adefaults: List[Setting[_]] = warningSetting :: layoutSetting :: Nil
 
-  def pb(name: String) =
+  def apb(name: String) =
     AndroidProjectBuilder(name, deps, proguard, placeholders, Nil,
       adefaults, platform)
 
-  override def tdp(name: String) = super.tdp(name).export
+  def adp(name: String) =
+    apb(name).antSrc.paradise().settingsV(namePrefix).export
+
+  def aar(name: String) = adp(name).aar
 
   override lazy val macroConsole = macroConsoleBuilder
     .settingsV(
