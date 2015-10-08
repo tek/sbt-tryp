@@ -62,7 +62,7 @@ with Tryplug
   val wantDevdeps = false
 
   object TrypDeps
-  extends DepsBase
+  extends Deps
   {
     override def deps = super.deps ++ Map(
       "android" → android

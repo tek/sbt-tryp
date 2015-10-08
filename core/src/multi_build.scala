@@ -5,7 +5,7 @@ import Keys._
 
 object DefaultDeps extends Deps
 
-abstract class MultiBuildBase[A <: ProjectBuilder[A]](deps: Deps = DefaultDeps)
+abstract class MultiBuildBase[A <: ProjectBuilder[A]]
 extends sbt.Build
 with Tryplug
 {
@@ -55,7 +55,5 @@ with Tryplug
     )
 }
 
-abstract class MultiBuild(deps: Deps = DefaultDeps)
+abstract class MultiBuild(override val deps: Deps = DefaultDeps)
 extends MultiBuildBase[DefaultProjectBuilder]
-{
-}

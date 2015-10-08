@@ -9,11 +9,11 @@ object DefaultProguard extends Proguard
 object DefaultPlaceholders extends Placeholders
 
 abstract class AndroidBuild(
-  deps: AndroidDeps = DefaultDeps,
+  override val deps: AndroidDeps = DefaultDeps,
   proguard: Proguard = DefaultProguard,
   placeholders: Placeholders = DefaultPlaceholders
 )
-extends MultiBuildBase[AndroidProjectBuilder](deps)
+extends MultiBuildBase[AndroidProjectBuilder]
 {
   val platform = "android-21"
 
