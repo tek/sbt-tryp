@@ -80,6 +80,8 @@ extends AutoPlugin
       if (generateManifest.value) Seq(manifestTemplateData.value)
       else Seq()
     },
-    symlinkLibs <<= symlinkLibsTask
+    symlinkLibs <<= symlinkLibsTask,
+    scalacOptions += "-target:jvm-1.7",
+    javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
   )
 }
