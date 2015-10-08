@@ -33,7 +33,8 @@ with Tryplug
 
   lazy val android = pluginSubProject("android")
       .settings(
-        name := "tryp-android"
+        name := "tryp-android",
+        sdkVersion := "1.5.5"
       )
       .settings(common: _*)
       .dependsOn(core)

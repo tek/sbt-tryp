@@ -43,7 +43,9 @@ object Tests {
     javaOptions in Test ++= Seq(
       "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled", "-noverify"
     ),
-    unmanagedClasspath in Test ++= (bootClasspath in Android).value
+    unmanagedClasspath in Test ++= (bootClasspath in Android).value,
+    test in Test <<= test in Test dependsOn TrypAndroidKeys.symlinkLibs,
+    testOnly in Test <<= testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs
   )
 }
 
