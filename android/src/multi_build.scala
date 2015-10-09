@@ -48,10 +48,4 @@ extends MultiBuildBase[AndroidProjectBuilder]
     apb(name).antSrc.paradise().settingsV(namePrefix).export
 
   def aar(name: String) = adp(name).aar
-
-  override lazy val macroConsole = macroConsoleBuilder
-    .settingsV(
-      updateCheck := {},
-      antLayoutDetector := {}
-    )()
 }
