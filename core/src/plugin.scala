@@ -19,7 +19,7 @@ with Tryplug
   val autoImport = TrypBuildKeys
   import autoImport._
 
-  override def globalSettings = super.globalSettings ++ Seq(
+  override def projectSettings = super.projectSettings ++ Seq(
     paradiseJar := {
       val name = s"paradise_${scalaVersion.value}"
       homeDir flatMap { home ⇒
