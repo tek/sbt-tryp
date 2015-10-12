@@ -40,9 +40,7 @@ object Tests {
     testOptions in Test += sbt.Tests.Argument("-oF"),
     exportJars in Test := false,
     fork in Test := true,
-    javaOptions in Test ++= Seq(
-      "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled", "-noverify"
-    ),
+    javaOptions in Test ++= Seq("-XX:+CMSClassUnloadingEnabled", "-noverify"),
     unmanagedClasspath in Test ++= (bootClasspath in Android).value,
     test in Test <<= test in Test dependsOn TrypAndroidKeys.symlinkLibs,
     testOnly in Test <<= testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs
