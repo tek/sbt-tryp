@@ -7,6 +7,11 @@ import Keys._
 import android.Keys._
 import Types._
 
+object Aar
+{
+  lazy val settings = android.Plugin.buildAar ++ Export.settings
+}
+
 trait Proguard {
   lazy val settings = Seq(
     useProguard in Android := true,
@@ -186,7 +191,7 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
     project
       .settings(placeholderSetting)
       .androidBuildWith(refs ++ arefs: _*)
-      .transformIf(aparams.aar)(_.settings(android.Plugin.buildAar: _*))
+      .transformIf(aparams.aar)(_.settings(Aar.settings: _*))
       .settings(aparams.settings: _*)
       .settings(transitiveSetting, platformSetting)
       .enablePlugins(TrypAndroid)
