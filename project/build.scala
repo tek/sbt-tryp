@@ -73,7 +73,7 @@ with Tryplug
 
     val core = ids(
       pd("tryp.sbt", "tryplug", tryplugVersion, "tek", "tek/tryplug",
-        "tryplug", "tryplug-macros")
+        "tryplug", "macros")
     )
 
     val android = ids(
