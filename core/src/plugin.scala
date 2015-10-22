@@ -45,7 +45,7 @@ with Tryplug
   val autoImport = TrypBuildKeys
 
   override def projectSettings =
-    super.projectSettings ++ basicSettings ++ Seq(
+    super.projectSettings ++ commonBasicSettings ++ Seq(
       generateLogback := false,
       logbackTemplate := metaRes.value / "logback.xml",
       logbackTokens := Map(),
