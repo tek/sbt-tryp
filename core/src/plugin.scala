@@ -44,20 +44,21 @@ with Tryplug
 
   val autoImport = TrypBuildKeys
 
-  override def projectSettings = super.projectSettings ++ Seq(
-    generateLogback := false,
-    logbackTemplate := metaRes.value / "logback.xml",
-    logbackTokens := Map(),
-    templates ++= {
-      if (generateLogback.value) Seq(logbackTemplateData.value)
-      else Seq()
-    },
-    paradiseJar := {
-      val name = s"paradise_${scalaVersion.value}"
-      homeDir flatMap { home ⇒
-        (home / ".ivy2" / "cache" / "org.scalamacros" / name / "jars" *
-          s"$name*.jar").get.headOption
+  override def projectSettings =
+    super.projectSettings ++ basicSettings ++ Seq(
+      generateLogback := false,
+      logbackTemplate := metaRes.value / "logback.xml",
+      logbackTokens := Map(),
+      templates ++= {
+        if (generateLogback.value) Seq(logbackTemplateData.value)
+        else Seq()
+      },
+      paradiseJar := {
+        val name = s"paradise_${scalaVersion.value}"
+        homeDir flatMap { home ⇒
+          (home / ".ivy2" / "cache" / "org.scalamacros" / name / "jars" *
+            s"$name*.jar").get.headOption
+        }
       }
-    }
-  )
+    )
 }
