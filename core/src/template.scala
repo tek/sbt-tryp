@@ -32,12 +32,15 @@ extends AutoPlugin
   val autoImport = TemplatesKeys
   import autoImport._
 
+  val cacheName = "templates"
+
   def replaceTokens(content: String, values: Tokens,
     formatter: String ⇒ String) = {
       values.foldLeft(content) { case (text, (key, value)) ⇒
         text.replaceAllLiterally(formatter(key), value)
       }
   }
+
 
   def template(source: File, target: File, values: Tokens,
     formatter: String ⇒ String) = {
@@ -46,11 +49,18 @@ extends AutoPlugin
   }
 
   def templatesTask = Def.task {
-    templates.value map {
-      case ((source, target), values) ⇒
-        streams.value.log.info(s"generating $target")
-        template(source, target, values, keyFormatter.value)
+    val cacheDir = streams.value.cacheDirectory / cacheName
+    val grouped = templates.value map(_._1._1) zip(templates.value) toMap
+    val update: Set[File] ⇒ Set[File] = sources ⇒ {
+      sources flatMap { f ⇒
+        grouped.get(f) map { case ((source, target), values) ⇒
+          streams.value.log.info(s"generating $target")
+          template(source, target, values, keyFormatter.value)
+        }
+      }
     }
+    FileFunction.cached(cacheDir, FilesInfo.lastModified)(update)(
+      grouped.keys.toSet).toSeq
   }
 
   override lazy val projectSettings = Seq(
