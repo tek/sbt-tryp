@@ -7,14 +7,16 @@ object TrypBuildKeys
 {
   import Templates.autoImport.Tokens
 
+  import TrypKeys.{Tryp ⇒ TrypC}
+
   val paradiseJar = settingKey[Option[File]](
-    "location of the macro paradise jar")
+    "location of the macro paradise jar") in TrypC
   val generateLogback = Def.settingKey[Boolean](
-    "automatically generate logback.xml")
+    "automatically generate logback.xml") in TrypC
   val logbackTokens = Def.settingKey[Tokens](
-    "additional replacement tokens for logback.xml")
+    "additional replacement tokens for logback.xml") in TrypC
   val logbackTemplate = Def.settingKey[File](
-    "location of the template for logback.xml generation")
+    "location of the template for logback.xml generation") in TrypC
 }
 import TrypBuildKeys._
 

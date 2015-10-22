@@ -9,11 +9,15 @@ object TemplatesKeys
 {
   type Tokens = Map[String, String]
 
+  import TrypKeys.Tryp
+
   lazy val templates =
-    settingKey[Seq[((File, File), Tokens)]]("template files")
+    settingKey[Seq[((File, File), Tokens)]]("template files") in Tryp
+
   lazy val keyFormatter =
-    settingKey[String ⇒ String]("map keys to placeholders")
-  lazy val metaRes = Def.settingKey[File]("meta resource dir")
+    settingKey[String ⇒ String]("map keys to placeholders") in Tryp
+
+  lazy val metaRes = Def.settingKey[File]("meta resource dir") in Tryp
 }
 
 object Templates
