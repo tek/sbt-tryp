@@ -17,9 +17,9 @@ extends MultiBuildBase[AndroidProjectBuilder]
 {
   val platform = "android-21"
 
-  lazy val warningSetting = transitiveAndroidWarning in Android := false
+  lazy val warningSetting = transitiveAndroidWarning := false
 
-  lazy val layoutSetting = projectLayout in Android :=
+  lazy val layoutSetting = projectLayout :=
     new ProjectLayout.Wrapped(ProjectLayout.Ant(baseDirectory.value))
     {
       override def testSources = (sourceDirectory in Test).value
@@ -29,15 +29,18 @@ extends MultiBuildBase[AndroidProjectBuilder]
       override def gen = (target in Compile).value / "gen"
     }
 
-  lazy val typedResSetting = typedResources in Android := false
+  lazy val typedResSetting = typedResources := false
 
-  lazy val lintSetting = lintEnabled in Android := false
+  lazy val lintSetting = lintEnabled := false
+
+  lazy val debugIncludesTestsSetting = debugIncludesTests := false
 
   def adefaults: List[Setting[_]] = List(
     warningSetting,
     layoutSetting,
     typedResSetting,
-    lintSetting
+    lintSetting,
+    debugIncludesTestsSetting
   )
 
   def apb(name: String) =
