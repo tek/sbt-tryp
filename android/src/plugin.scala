@@ -14,7 +14,6 @@ object TrypAndroidKeys
 {
   import Templates.autoImport.Tokens
 
-  val metaRes = Def.settingKey[File]("meta resource dir")
   val manifestTokens = Def.settingKey[Tokens](
     "additional replacement tokens for the manifest")
   val generateManifest = Def.settingKey[Boolean](
@@ -73,7 +72,6 @@ extends AutoPlugin
 
   override lazy val projectSettings = super.projectSettings ++ Seq(
     generateManifest := false,
-    metaRes := (baseDirectory in ThisBuild).value / "meta" / "resources",
     manifestTemplate := metaRes.value / "AndroidManifest.xml",
     manifestTokens := Map(),
     templates ++= {

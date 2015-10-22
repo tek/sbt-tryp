@@ -9,7 +9,7 @@ abstract class MultiBuildBase[A <: ProjectBuilder[A]]
 extends sbt.Build
 with Tryplug
 {
-  import TrypBuildPlugin.autoImport._
+  import Tryp.autoImport._
 
   override def settings = super.settings ++ basicSettings
 
