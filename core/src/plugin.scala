@@ -37,7 +37,7 @@ object Tryp
 extends AutoPlugin
 with Tryplug
 {
-  override def requires = plugins.JvmPlugin
+  override def requires = Templates
   override def trigger = allRequirements
 
   import Templates.autoImport._
