@@ -18,6 +18,9 @@ object TemplatesKeys
     settingKey[String ⇒ String]("map keys to placeholders") in Tryp
 
   lazy val metaRes = Def.settingKey[File]("meta resource dir") in Tryp
+
+  lazy val templateResources =
+    taskKey[Seq[File]]("generate resources from templates") in Tryp
 }
 
 object Templates
@@ -53,8 +56,9 @@ extends AutoPlugin
   override lazy val projectSettings = Seq(
     templates := Seq(),
     keyFormatter := { (k: String) ⇒ s"$${$k}" },
-    resourceGenerators in Compile <+= templatesTask,
-    resourceGenerators in Test <+= templatesTask,
+    templateResources <<= templatesTask,
+    resourceGenerators in Compile <+= templateResources,
+    resourceGenerators in Test <+= templateResources,
     metaRes := (baseDirectory in ThisBuild).value / "meta" / "resources"
   )
 }
