@@ -58,7 +58,6 @@ extends AutoPlugin
     keyFormatter := { (k: String) ⇒ s"$${$k}" },
     templateResources <<= templatesTask,
     resourceGenerators in Compile <+= templateResources,
-    resourceGenerators in Test <+= templateResources,
     metaRes := (baseDirectory in ThisBuild).value / "meta" / "resources"
   )
 }
