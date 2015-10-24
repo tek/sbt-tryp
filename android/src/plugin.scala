@@ -14,13 +14,15 @@ object TrypAndroidKeys
 {
   import Templates.autoImport.Tokens
 
+  import TrypKeys.{Tryp ⇒ TrypC}
+
   val manifestTokens = Def.settingKey[Tokens](
-    "additional replacement tokens for the manifest")
+    "additional replacement tokens for the manifest") in TrypC
   val generateManifest = Def.settingKey[Boolean](
-    "automatically generate AndroidManifest.xml")
+    "automatically generate AndroidManifest.xml") in TrypC
   val manifestTemplate = Def.settingKey[File](
-    "location of the template for AndroidManifest.xml generation")
-  val symlinkLibs = taskKey[Seq[File]]("symlink libs for robolectric")
+    "location of the template for AndroidManifest.xml generation") in TrypC
+  val symlinkLibs = taskKey[Seq[File]]("symlink libs for robolectric") in TrypC
 }
 import TrypAndroidKeys._
 
@@ -30,7 +32,7 @@ object TrypAndroidSettings
     val tokens = Map(
       "version_code" → version.value
     ) ++ manifestTokens.value
-    manifestTemplate.value → (projectLayout in Android).value.manifest → tokens
+    manifestTemplate.value → projectLayout.value.manifest → tokens
   }
 
   val aarsDir = Def.setting(target.value / "aars")
@@ -64,9 +66,10 @@ import TrypAndroidTasks._
 object TrypAndroid
 extends AutoPlugin
 {
-  override def requires = Templates && AndroidPlugin
+  override def requires = Templates && AndroidPlugin && Tryp
 
   import Templates.autoImport._
+  import Tryp.autoImport._
 
   val autoImport = TrypAndroidKeys
 
@@ -78,6 +81,7 @@ extends AutoPlugin
       if (generateManifest.value) Seq(manifestTemplateData.value)
       else Seq()
     },
+    logbackOutput := projectLayout.value.assets / "logback.xml",
     symlinkLibs <<= symlinkLibsTask,
     scalacOptions += "-target:jvm-1.7",
     javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")

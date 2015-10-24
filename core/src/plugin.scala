@@ -17,6 +17,8 @@ object TrypBuildKeys
     "additional replacement tokens for logback.xml") in TrypC
   val logbackTemplate = Def.settingKey[File](
     "location of the template for logback.xml generation") in TrypC
+  val logbackOutput = Def.settingKey[File](
+    "location of the generated logback.xml") in TrypC
 }
 import TrypBuildKeys._
 
@@ -24,9 +26,10 @@ object TrypLogbackSettings
 {
   def logbackTemplateData = Def.setting {
     val tokens = Map(
-      "log_file_name" → name.value
+      "log_file_name" → name.value,
+      "tag" → name.value
     ) ++ logbackTokens.value
-    logbackTemplate.value → (resourceManaged.value / "logback.xml") → tokens
+    logbackTemplate.value → logbackOutput.value → tokens
   }
 
   val aarsDir = Def.setting(target.value / "aars")
@@ -48,6 +51,7 @@ with Tryplug
     super.projectSettings ++ commonBasicSettings ++ Seq(
       generateLogback := false,
       logbackTemplate := metaRes.value / "logback.xml",
+      logbackOutput := resourceManaged.value / "logback.xml",
       logbackTokens := Map(),
       templates ++= {
         if (generateLogback.value) Seq(logbackTemplateData.value)
