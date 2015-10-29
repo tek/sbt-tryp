@@ -27,17 +27,7 @@ with Tryplug
       name := "tryp-build",
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0"),
       addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.0.1"),
-      addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0"),
-      versionUpdater := {
-        new Versions {
-          def projectDir = Option(VersionUpdateKeys.projectDir.value)
-          override def versionDirs = {
-            projectDir
-              .map { d ⇒ Seq(d, d / "project") }
-              .getOrElse(Nil)
-          }
-        }
-      }
+      addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")
     )
 
   lazy val android = pluginSubProject("android")
@@ -48,8 +38,19 @@ with Tryplug
     .settings(common: _*)
     .dependsOn(core)
 
-  lazy val root = (project in file("."))
-    .settings(publish := (), publishLocal := ())
+  lazy val root = pluginSubProject("root")
+    .in(file("."))
+    .settings(
+      publish := (),
+      publishLocal := (),
+      versionUpdater := {
+        new Versions {
+          def projectDir =
+            Option(VersionUpdateKeys.projectDir.value / "project")
+          override def handlePrefix = "P."
+        }
+      }
+    )
     .aggregate(core, android)
 
   lazy val scripted = (project in file("scripted"))
@@ -75,21 +76,28 @@ with Tryplug
   {
     override def deps = super.deps ++ Map(
       "core" → core,
-      "android" → android
+      "android" → android,
+      "root" → root
     )
 
     val huy = "com.hanhuy.sbt"
     val sdkName = "android-sdk-plugin"
 
+    val tryplug = pd("tryp.sbt", "tryplug", tryplugVersion, "tek",
+      "tek/tryplug", "P.tryplug", "macros")
+
     val core = ids(
-      pd("tryp.sbt", "tryplug", tryplugVersion, "tek", "tek/tryplug",
-        "tryplug", "macros")
+      tryplug
     )
 
     val android = ids(
       pd(huy, sdkName, sdkVersion, "pfn", s"pfn/$sdkName"),
       pd(huy, "android-protify", protifyVersion, "pfn", "pfn/protify",
         "plugin")
+    )
+
+    val root = ids(
+      tryplug
     )
   }
 
