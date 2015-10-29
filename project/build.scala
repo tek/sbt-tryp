@@ -27,7 +27,17 @@ with Tryplug
       name := "tryp-build",
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.13.0"),
       addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.0.1"),
-      addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")
+      addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0"),
+      versionUpdater := {
+        new Versions {
+          def projectDir = Option(VersionUpdateKeys.projectDir.value)
+          override def versionDirs = {
+            projectDir
+              .map { d ⇒ Seq(d, d / "project") }
+              .getOrElse(Nil)
+          }
+        }
+      }
     )
 
   lazy val android = pluginSubProject("android")
