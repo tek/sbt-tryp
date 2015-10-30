@@ -152,6 +152,8 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
     acopy(aparams.copy(settings = extra ++ aparams.settings))
   }
 
+  def asettingsV(extra: Setting[_]*) = asettings(extra)
+
   def androidTest = {
     settings(Tests.settings)
   }
