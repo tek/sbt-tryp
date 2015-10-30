@@ -5,6 +5,7 @@ import reflect.macros.Context
 import sbt._
 import Keys._
 import android.Keys._
+import android.protify.Keys._
 import Types._
 
 object Aar
@@ -175,6 +176,8 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
   def platformSetting = platformTarget in Android := aparams.target
 
   def transitive = acopy(aparams.copy(transitive = true))
+
+  def protify = asettings(protifySettings)
 
   def multidex(main: Seq[String] = List()) = {
     multidexDeps.multidexSettings(main)
