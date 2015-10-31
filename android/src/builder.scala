@@ -133,7 +133,7 @@ object Multidex
 }
 
 case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
-  settings: Setts)
+  settings: Setts, deps: List[ProjectReference] = Nil)
 
 class AndroidProjectBuilder(name: String, deps: AndroidDeps, prog: Proguard,
   placeholders: Placeholders, params: ProjectParams, aparams: AndroidParams)
@@ -191,11 +191,24 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
     asettings(Multidex.settings(main))
   }
 
-  def aproject(arefs: ProjectReference*) = {
-    val refs = deps.aRefs(name)
+  def apk(pkg: String) = {
+    val path = pkg.replace('.', '/')
+    proguard
+      .multidexSettings(
+        Seq(s"$path/Application.class", s"$path/MainActivity.class"))
+      .settingsV(dexShards := true)
+  }
+
+  def release = {
+    asettings(apkbuildDebug ~= { a ⇒ a(true); a })
+  }
+
+  def arefs = deps.aRefs(name) ++ aparams.deps
+
+  def aproject = {
     project
       .settings(placeholderSetting)
-      .androidBuildWith(refs ++ arefs: _*)
+      .androidBuildWith(arefs: _*)
       .transformIf(aparams.aar)(_.settings(Aar.settings: _*))
       .settings(aparams.settings: _*)
       .settings(transitiveSetting, platformSetting)
@@ -203,16 +216,15 @@ extends ProjectBuilder[AndroidProjectBuilder](name, deps, params)
   }
 
   def androidDeps(projects: ProjectReference*) = {
-    aproject(projects: _*)
+    // aproject(projects: _*)
+    acopy(aparams.copy(deps = aparams.deps ++ projects))
   }
 
   def <<<(pros: ProjectReference*) = androidDeps(pros: _*)
 
-  override def dep(pros: ClasspathDep[ProjectReference]*) = {
-    aproject().dependsOn(pros: _*)
-  }
+  def <<<!(pros: ProjectReference*) = androidDeps(pros: _*).!
 
-  override def apply() = aproject()
+  override def apply() = aproject
 }
 
 object AndroidProjectBuilder

@@ -24,7 +24,8 @@ object Paradise {
   )
 }
 
-case class ProjectParams(settings: Setts, path: String, bintray: Boolean)
+case class ProjectParams(settings: Setts, path: String, bintray: Boolean,
+  deps: List[ClasspathDep[ProjectReference]] = Nil)
 
 object ProjectBuilder
 {
@@ -34,7 +35,7 @@ object ProjectBuilder
   }
 }
 
-abstract class ProjectBuilder[A]
+abstract class ProjectBuilder[A <: ProjectBuilder[A]]
 (name: String, deps: Deps, params: ProjectParams)
 { self: A ⇒
 
@@ -51,6 +52,14 @@ abstract class ProjectBuilder[A]
   }
 
   def at(pt: String) = path(pt)
+
+  val ~ = at _
+
+  def desc(text: String) = {
+    settingsV(description := text)
+  }
+
+  val / = desc _
 
   def settings(extra: Setts) = {
     copy(params.copy(settings = extra ++ params.settings))
@@ -76,20 +85,26 @@ abstract class ProjectBuilder[A]
     copy(params.copy(bintray = true))
   }
 
+  def refs = deps.refs(name) ++ params.deps
+
   def project = {
     Project(name, file(params.path))
       .settings(deps(name) ++ params.settings: _*)
-      .dependsOn(deps.refs(name): _*)
+      .dependsOn(refs: _*)
       .transformIf(!params.bintray) { _.disablePlugins(BintrayPlugin) }
   }
 
   def dep(pros: ClasspathDep[ProjectReference]*) = {
-    project.dependsOn(pros: _*)
+    copy(params.copy(deps = params.deps ++ pros))
   }
 
   def apply() = project
 
+  def ! = apply()
+
   def <<(pros: ClasspathDep[ProjectReference]*) = dep(pros: _*)
+
+  def <<!(pros: ClasspathDep[ProjectReference]*) = dep(pros: _*).!
 
   def aggregate(projects: ProjectReference*) = {
     project.aggregate(projects: _*)
