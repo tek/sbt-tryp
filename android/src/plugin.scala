@@ -46,7 +46,7 @@ object TrypAndroidTasks
     val dir = aarsDir.value
     val projects = thisProjectRef.value
       .deepDeps
-      .map(r ⇒ Project.getProject(r, struct))
+      .map(r ⇒ sbt.Project.getProject(r, struct))
       .flatten
       .map(pro ⇒ (pro.base, pro.id))
     val targets = (aars.value.map(a ⇒ (a.path, a.path.getName)) ++ projects)

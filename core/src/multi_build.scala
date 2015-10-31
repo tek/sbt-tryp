@@ -5,15 +5,17 @@ import Keys._
 
 object DefaultDeps extends Deps
 
-abstract class MultiBuildBase[A <: ProjectBuilder[A]]
+class MultiBuildBase
 extends sbt.Build
 with Tryplug
+with ToProjectOps
+with ProjectInstances
 {
   import Tryp.autoImport._
 
   override def settings = super.settings ++ basicSettings
 
-  def pb(name: String) = DefaultProjectBuilder(name, deps)
+  def pb(name: String) = Project(name, deps)
 
   val prefix: Option[String] = None
 
@@ -25,7 +27,7 @@ with Tryplug
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
-  lazy val root = pb("root").path(".")()
+  lazy val root = pb("root").path(".").!
 
   def metaProject(n: String) = tdp(n)
     .path(".")
@@ -33,7 +35,7 @@ with Tryplug
 
   def mpb(name: String) = metaProject(name)
 
-  lazy val macroConsole = macroConsoleBuilder()
+  lazy val macroConsole = macroConsoleBuilder.!
 
   lazy val macroConsoleBuilder = metaProject("macro-console")
     .settingsV(
@@ -55,5 +57,5 @@ with Tryplug
     )
 }
 
-abstract class MultiBuild(override val deps: Deps = DefaultDeps)
-extends MultiBuildBase[DefaultProjectBuilder]
+class MultiBuild(override val deps: Deps = DefaultDeps)
+extends MultiBuildBase

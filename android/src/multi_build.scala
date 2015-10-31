@@ -6,14 +6,14 @@ import android.Keys._
 
 object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
-object DefaultPlaceholders extends Placeholders
 
 abstract class AndroidBuild(
   override val deps: AndroidDeps = DefaultDeps,
-  proguard: Proguard = DefaultProguard,
-  placeholders: Placeholders = DefaultPlaceholders
+  proguard: Proguard = DefaultProguard
 )
-extends MultiBuildBase[AndroidProjectBuilder]
+extends MultiBuildBase
+with ToAndroidProjectOps
+with AndroidProjectInstances
 {
   val platform = "android-21"
 
@@ -35,17 +35,19 @@ extends MultiBuildBase[AndroidProjectBuilder]
 
   lazy val debugIncludesTestsSetting = debugIncludesTests := false
 
+  lazy val proguardInDebugSetting = useProguardInDebug := false
+
   def adefaults: List[Setting[_]] = List(
     warningSetting,
     layoutSetting,
     typedResSetting,
     lintSetting,
-    debugIncludesTestsSetting
+    debugIncludesTestsSetting,
+    proguardInDebugSetting
   )
 
   def apb(name: String) =
-    AndroidProjectBuilder(name, deps, proguard, placeholders, Nil,
-      adefaults, platform)
+    AndroidProject(name, deps, proguard, Nil, adefaults, platform)
 
   def adp(name: String) =
     apb(name).antSrc.paradise().settingsV(namePrefix).export
