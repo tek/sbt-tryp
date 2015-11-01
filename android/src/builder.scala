@@ -50,8 +50,7 @@ extends TrypId(id, depspec, path, sub, dev)
   def aRefs = super.projects
 
   override def info = {
-    if (dev) super.info
-    else s"aar ${super.info}"
+    s"aar ${super.info}"
   }
 }
 
