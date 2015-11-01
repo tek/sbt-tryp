@@ -27,7 +27,17 @@ object Paradise {
 case class Params(name: String, settings: Setts,
   path: String, bintray: Boolean, deps: List[SbtDep] = Nil)
 
+class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
+{
+  self: A ⇒
+
+  lazy val reify: sbt.Project = builder.project(this)
+
+  def info: List[String] = builder.info(this)
+}
+
 case class Project[D <: Deps](params: Params, deps: D)
+extends ProjectI[Project[D]]
 
 final class TransformIf[A](a: A) {
   def transformIf(pred: ⇒ Boolean)(transform: A ⇒ A) =
@@ -37,6 +47,24 @@ final class TransformIf[A](a: A) {
 trait ToTransformIf
 {
   implicit def ToTransformIf[A](a: A) = new TransformIf(a)
+}
+
+trait ToSbt[A]
+{
+  def reify(project: A): sbt.Project
+}
+
+object ToSbt
+{
+  implicit def ProjectIToSbt[A <: ProjectI[A]] =
+    new ToSbt[A] {
+      def reify(project: A) = project.reify
+    }
+
+  implicit val sbtToSbt =
+    new ToSbt[sbt.Project] {
+      def reify(project: sbt.Project) = project
+    }
 }
 
 class ProjectOps[A](pro: A)
@@ -94,11 +122,17 @@ extends ToTransformIf
     withParams(params.copy(bintray = true))
   }
 
+  def logback = {
+    settingsV(TrypBuildKeys.generateLogback := true)
+  }
+
   def dep(pros: SbtDep*) = {
     withParams(params.copy(deps = params.deps ++ pros))
   }
 
   def refs = builder.refs(pro)
+
+  def libraryDeps = deps(name)
 
   def project = builder.project(pro)
 
@@ -107,14 +141,17 @@ extends ToTransformIf
   def basicProject = {
     sbt.Project(name, file(params.path))
       .dependsOn(refs: _*)
-      .settings(deps(name) ++ params.settings: _*)
       .transformIf(!params.bintray)(_.disablePlugins(BintrayPlugin))
   }
 
-  def <<(pros: SbtDep*) = dep(pros: _*)
+  def configuredProject = {
+    basicProject
+      .settings(libraryDeps ++ params.settings: _*)
+  }
 
-  def <<!(pros: SbtDep*) =
-    builder.project(dep(pros: _*))
+  def <<[B](pro: B)(implicit ts: ToSbt[B]) = dep(ts.reify(pro))
+
+  def <<![B](pro: B)(implicit ts: ToSbt[B]) = builder.project(<<(pro))
 
   def aggregate(projects: ProjectReference*) = {
     project.aggregate(projects: _*)
@@ -126,13 +163,14 @@ trait ToProjectOps
   implicit def ToProjectOps[A: ProjectBuilder](pro: A) = new ProjectOps(pro)
 }
 
-trait ProjectBuilder[A]
+trait ProjectBuilder[P]
 {
-  def withParams(pro: A)(newParams: Params): A
-  def params(pro: A): Params
-  def deps(pro: A): Deps
-  def project(pro: A): sbt.Project
-  def refs(pro: A): Seq[SbtDep]
+  def withParams(pro: P)(newParams: Params): P
+  def params(pro: P): Params
+  def deps(pro: P): Deps
+  def project(pro: P): sbt.Project
+  def refs(pro: P): Seq[SbtDep]
+  def info(pro: P): List[String]
 }
 
 object Project
@@ -150,7 +188,7 @@ with ToTransformIf
 {
   type P = Project[D]
 
-  def project(pro: P) = pro.basicProject
+  def project(pro: P) = pro.configuredProject
 
   def deps(pro: P) = pro.deps
 
@@ -160,6 +198,12 @@ with ToTransformIf
     pro.copy(params = newParams)
 
   def refs(pro: P) = pro.deps.refs(pro.name) ++ pro.params.deps
+
+  def info(pro: P) = {
+    List(
+      s" ○ project ${pro.name}"
+    )
+  }
 }
 
 trait ProjectInstances

@@ -43,11 +43,16 @@ object Tests {
   )
 }
 
-class AndroidTrypId(plainId: DepSpec, path: String, sub: Seq[String],
-  dev: Boolean)
-extends TrypId(plainId, path, sub, dev)
+class AndroidTrypId(id: ModuleID, depspec: DepSpec, path: String,
+  sub: Seq[String], dev: Boolean)
+extends TrypId(id, depspec, path, sub, dev)
 {
   def aRefs = super.projects
+
+  override def info = {
+    if (dev) super.info
+    else s"aar ${super.info}"
+  }
 }
 
 object AndroidDeps
@@ -58,7 +63,8 @@ object AndroidDeps
     import c.universe._
     c.Expr[AndroidTrypId] {
       q"""new tryp.AndroidTrypId(
-        libraryDependencies += android.Keys.aar($id), $path, Seq(..$sub), true
+        $id, libraryDependencies += android.Keys.aar($id), $path, Seq(..$sub),
+        true
       )
       """
     }
@@ -123,18 +129,19 @@ object Multidex
 }
 
 case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
-  settings: Setts, deps: List[ProjectReference] = Nil)
+  deps: List[ProjectReference] = Nil)
 
 case class AndroidProject(basic: Project[AndroidDeps], aparams: AndroidParams,
   prog: Proguard)
+extends ProjectI[AndroidProject]
 
 object AndroidProject
 extends AndroidProjectInstances
 {
   def apply(name: String, deps: AndroidDeps, prog: Proguard,
-  defaults: Setts, adefaults: Setts, platform: String): AndroidProject =
+  defaults: Setts, platform: String): AndroidProject =
     AndroidProject(Project(name, deps, defaults),
-      AndroidParams(false, platform, false, adefaults), prog
+      AndroidParams(false, platform, false), prog
     )
 }
 
@@ -151,14 +158,8 @@ with ToTransformIf
     builder.withAndroidParams(pro)(newParams)
   }
 
-  def asettings(extra: Setts) = {
-    withAndroidParams(aparams.copy(settings = extra ++ aparams.settings))
-  }
-
-  def asettingsV(extra: Setting[_]*) = asettings(extra)
-
   def androidTest = {
-    asettings(Tests.settings)
+    pro.settings(Tests.settings)
   }
 
   def aar = {
@@ -166,7 +167,7 @@ with ToTransformIf
   }
 
   def proguard = {
-    asettings(builder.prog(pro).settings)
+    pro.settings(builder.prog(pro).settings)
   }
 
   def transitiveSetting =
@@ -176,25 +177,25 @@ with ToTransformIf
 
   def transitive = withAndroidParams(aparams.copy(transitive = true))
 
-  def protify = asettings(protifySettings)
+  def protify = pro.settings(protifySettings)
 
   def multidex(main: Seq[String] = List()) = {
     builder.multidex(pro)(main)
   }
 
   def multidexDeps = {
-    asettings(Multidex.deps)
+    pro.settings(Multidex.deps)
   }
 
   def multidexSettings(main: Seq[String]) = {
-    asettings(Multidex.settings(main))
+    pro.settings(Multidex.settings(main))
   }
 
   def apk(pkg: String, mainDex: List[String] = Nil) =
     builder.apk(pro)(pkg, mainDex)
 
   def release = {
-    asettings(apkbuildDebug ~= { a ⇒ a(true); a })
+    pro.settings(apkbuildDebug ~= { a ⇒ a(true); a })
   }
 
   def arefs = adeps.aRefs(pro.name) ++ aparams.deps
@@ -203,10 +204,18 @@ with ToTransformIf
     withAndroidParams(aparams.copy(deps = aparams.deps ++ projects))
   }
 
-  def <<<(pros: ProjectReference*) = androidDeps(pros: _*)
+  def androidProject = {
+    pro.basicProject
+      .androidBuildWith(arefs: _*)
+      .transformIf(aparams.aar)(_.settings(Aar.settings: _*))
+      .settings(pro.libraryDeps ++ pro.params.settings: _*)
+      .settings(transitiveSetting, platformSetting)
+      .enablePlugins(TrypAndroid)
+  }
 
-  def <<<!(pros: ProjectReference*) =
-    builder.project(<<<(pros: _*))
+  def <<<[B](pro: B)(implicit ts: ToSbt[B]) = androidDeps(ts.reify(pro))
+
+  def <<<![B](pro: B)(implicit ts: ToSbt[B]) = builder.project(<<<(pro))
 }
 
 trait ToAndroidProjectOps
@@ -242,7 +251,7 @@ with ToTransformIf
   def withParams(pro: P)(newParams: Params) =
     pro.copy(pro.basic.copy(params = newParams))
 
-  def project(pro: P) = androidProject(pro)
+  def project(pro: P) = pro.androidProject
 
   def deps(pro: P) = pro.basic.deps
 
@@ -267,18 +276,17 @@ with ToTransformIf
       .settingsV(dexShards := true)
   }
 
-  def androidProject(pro: P) = {
-    val aparams = this.aparams(pro)
-    pro.basicProject
-      .androidBuildWith(pro.arefs: _*)
-      .transformIf(aparams.aar)(_.settings(Aar.settings: _*))
-      .settings(aparams.settings: _*)
-      .settings(pro.transitiveSetting, pro.platformSetting)
-      .enablePlugins(TrypAndroid)
-  }
-
   def multidex(pro: P)(main: Seq[String]) = {
     pro.multidexDeps.multidexSettings(main)
+  }
+
+  def info(pro: P) = {
+    val deps = adeps(pro).deps.get(pro.name) map { d ⇒
+      "   deps: " :: d.map("     " + _.info).toList
+    } getOrElse(Nil)
+    List(
+      s" ○ android project ${pro.name}"
+    ) ++ deps
   }
 }
 

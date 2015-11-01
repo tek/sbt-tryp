@@ -5,7 +5,7 @@ import Keys._
 
 object DefaultDeps extends Deps
 
-class MultiBuildBase
+trait MultiBuildBase
 extends sbt.Build
 with Tryplug
 with ToProjectOps
@@ -27,7 +27,7 @@ with ProjectInstances
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
-  lazy val root = pb("root").path(".").!
+  lazy val root = pb("root") ~ "." !
 
   def metaProject(n: String) = tdp(n)
     .path(".")
@@ -35,9 +35,9 @@ with ProjectInstances
 
   def mpb(name: String) = metaProject(name)
 
-  lazy val macroConsole = macroConsoleBuilder.!
+  // lazy val macroConsole = macroConsoleBuilder.!
 
-  lazy val macroConsoleBuilder = metaProject("macro-console")
+  lazy val macroConsole = metaProject("macro-console")
     .settingsV(
       scalacOptions ++= {
         paradiseJar.value map(p ⇒ s"-Xplugin:$p") toSeq
@@ -55,7 +55,30 @@ with ProjectInstances
         if(paradiseJar.value.isDefined) uni + sz else sz
       }
     )
+
+  override def rootProject = Some(macroConsole.!)
+}
+
+trait ExtMultiBuild
+extends MultiBuildBase
+{
+  override def settings = super.settings ++ Seq(
+    commands += projectInfoCommand
+  )
+
+  def trypProjects = ReflectUtilities.allVals[ProjectI[_]](this).values
+
+  override def projects = super.projects ++ trypProjects.map(_.reify)
+
+  def commandName = prefix map(_ + "-projects") getOrElse("tryp-projects")
+
+  def projectInfoCommand = {
+    Command.args(commandName, "<projects>") { (state, projects) ⇒
+      trypProjects flatMap(_.info :+ "") foreach(state.log.info(_))
+      state
+    }
+  }
 }
 
 class MultiBuild(override val deps: Deps = DefaultDeps)
-extends MultiBuildBase
+extends ExtMultiBuild

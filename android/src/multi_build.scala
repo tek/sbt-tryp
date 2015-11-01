@@ -11,7 +11,7 @@ abstract class AndroidBuild(
   override val deps: AndroidDeps = DefaultDeps,
   proguard: Proguard = DefaultProguard
 )
-extends MultiBuildBase
+extends ExtMultiBuild
 with ToAndroidProjectOps
 with AndroidProjectInstances
 {
@@ -37,7 +37,7 @@ with AndroidProjectInstances
 
   lazy val proguardInDebugSetting = useProguardInDebug := false
 
-  def adefaults: List[Setting[_]] = List(
+  def androidDefaults: List[Setting[_]] = List(
     warningSetting,
     layoutSetting,
     typedResSetting,
@@ -47,7 +47,7 @@ with AndroidProjectInstances
   )
 
   def apb(name: String) =
-    AndroidProject(name, deps, proguard, Nil, adefaults, platform)
+    AndroidProject(name, deps, proguard, androidDefaults, platform)
 
   def adp(name: String) =
     apb(name).antSrc.paradise().settingsV(namePrefix).export
