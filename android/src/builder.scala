@@ -47,7 +47,12 @@ class AndroidTrypId(id: ModuleID, depspec: DepSpec, path: String,
   sub: Seq[String], dev: Boolean)
 extends TrypId(id, depspec, path, sub, dev)
 {
-  def aRefs = super.projects
+  def aRefs = {
+    if (development) super.projects
+    else Nil
+  }
+
+  override def refs = Nil
 
   override def info = {
     s"aar ${super.info}"
@@ -94,16 +99,16 @@ extends Deps
   def ad(id: ModuleID, path: String, sub: String*) = macro AndroidDeps.adImpl
 
   def aRefs(name: String) = {
-    (common ++ deps.fetch(name)).collect {
+    (common ++ deps.fetch(name)).flatMap {
       case id: AndroidTrypId ⇒ id.aRefs
       case _ ⇒ List()
-    }.flatten
+    }
   }
 
   import ModuleID._
 
   override implicit def moduleIDtoTrypId(id: ModuleID) = {
-    if (id.isAar) 
+    if (id.isAar)
       new AndroidTrypId(id, libraryDependencies += id, "", List(), false)
     else super.moduleIDtoTrypId(id)
   }
@@ -270,7 +275,7 @@ with ToTransformIf
 
   def adeps(pro: P) = pro.basic.deps
 
-  def refs(pro: P) = pro.adeps.refs(pro.name) ++ pro.params.deps
+  def refs(pro: P) = deps(pro).refs(pro.name) ++ pro.params.deps
 
   def withAndroidParams(pro: P)(par: AndroidParams) = pro.copy(aparams = par)
 
