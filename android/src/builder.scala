@@ -94,10 +94,18 @@ extends Deps
   def ad(id: ModuleID, path: String, sub: String*) = macro AndroidDeps.adImpl
 
   def aRefs(name: String) = {
-    (common ++ deps.get(name).toSeq.flatten).collect {
+    (common ++ deps.fetch(name)).collect {
       case id: AndroidTrypId ⇒ id.aRefs
       case _ ⇒ List()
     }.flatten
+  }
+
+  import ModuleID._
+
+  override implicit def moduleIDtoTrypId(id: ModuleID) = {
+    if (id.isAar) 
+      new AndroidTrypId(id, libraryDependencies += id, "", List(), false)
+    else super.moduleIDtoTrypId(id)
   }
 }
 
