@@ -33,6 +33,8 @@ class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
 
   lazy val reify: sbt.Project = builder.project(this)
 
+  def ! = reify
+
   def info: List[String] = builder.info(this)
 }
 
@@ -135,8 +137,6 @@ extends ToTransformIf
   def libraryDeps = deps(name)
 
   def project = builder.project(pro)
-
-  def ! = project
 
   def basicProject = {
     sbt.Project(name, file(params.path))
