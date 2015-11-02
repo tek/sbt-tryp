@@ -13,8 +13,6 @@ with ProjectInstances
 {
   import Tryp.autoImport._
 
-  override def settings = super.settings ++ basicSettings
-
   def pb(name: String) = Project(name, deps)
 
   val prefix: Option[String] = None
@@ -80,5 +78,11 @@ extends MultiBuildBase
   }
 }
 
-class MultiBuild(override val deps: Deps = DefaultDeps)
+trait TrypBuild
 extends ExtMultiBuild
+{
+  override def settings = super.settings ++ trypSettings
+}
+
+class MultiBuild(override val deps: Deps = DefaultDeps)
+extends TrypBuild

@@ -7,14 +7,15 @@ import android.Keys._
 object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
 
-abstract class AndroidBuild(
-  override val deps: AndroidDeps = DefaultDeps,
-  proguard: Proguard = DefaultProguard
-)
+trait AndroidBuildBase
 extends ExtMultiBuild
 with ToAndroidProjectOps
 with AndroidProjectInstances
 {
+  override val deps: AndroidDeps = DefaultDeps
+
+  val proguard: Proguard
+
   val platform = "android-21"
 
   lazy val warningSetting = transitiveAndroidWarning := false
@@ -54,3 +55,12 @@ with AndroidProjectInstances
 
   def aar(name: String) = adp(name).aar
 }
+
+abstract class AndroidBuild(
+  override val deps: AndroidDeps = DefaultDeps,
+  proguard: Proguard = DefaultProguard
+)
+extends TrypBuild
+with AndroidBuildBase
+with ToAndroidProjectOps
+with AndroidProjectInstances
