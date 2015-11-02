@@ -25,7 +25,7 @@ extends tryp.Proguard
 object B
 extends tryp.AndroidBuild(deps = Deps, proguard = Proguard)
 {
-  lazy val core = tdp("core").aar()
+  lazy val core = aar("core")
 
-  lazy val pkg = tdp("pkg").proguard <<< core
+  lazy val pkg = adp("pkg").apk("org.test.app") <<< core
 }
