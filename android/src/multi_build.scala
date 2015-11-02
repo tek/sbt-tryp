@@ -58,7 +58,7 @@ with AndroidProjectInstances
 
 abstract class AndroidBuild(
   override val deps: AndroidDeps = DefaultDeps,
-  proguard: Proguard = DefaultProguard
+  val proguard: Proguard = DefaultProguard
 )
 extends TrypBuild
 with AndroidBuildBase
