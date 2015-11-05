@@ -38,13 +38,16 @@ with AndroidProjectInstances
 
   lazy val proguardInDebugSetting = useProguardInDebug := false
 
+  lazy val updateCheckSetting = updateCheck := {}
+
   def androidDefaults: List[Setting[_]] = List(
     warningSetting,
     layoutSetting,
     typedResSetting,
     lintSetting,
     debugIncludesTestsSetting,
-    proguardInDebugSetting
+    proguardInDebugSetting,
+    updateCheckSetting
   )
 
   def apb(name: String) =
