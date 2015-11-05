@@ -207,7 +207,7 @@ with ToTransformIf
     builder.apk(pro)(pkg, mainDex)
 
   def release = {
-    pro.settings(apkbuildDebug ~= { a ⇒ a(true); a })
+    pro.settings(apkbuildDebug ~= { a ⇒ a(false); a })
   }
 
   def arefs = adeps.aRefs(pro.name) ++ aparams.deps
