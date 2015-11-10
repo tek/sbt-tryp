@@ -1,52 +1,58 @@
 package tryp
 
-import reflect.macros.Context
+import scalaz._, Scalaz._
+import scalaz.Show
+
+import monocle.Lens
+import monocle.macros.Lenses
 
 import sbt._
 import Keys._
 import android.Keys._
 import android.protify.Keys._
 import Types._
+import TrypAndroidKeys._
 
 object Aar
 {
-  lazy val settings = android.Plugin.buildAar ++ Export.settings
+  lazy val settings = android.Plugin.buildAar.toList ++ Export.settings
 }
 
 trait Proguard {
-  lazy val settings = Seq(
+  lazy val settings = List(
     useProguard in Android := true,
     proguardScala in Android := true,
     proguardCache in Android ++= cache,
     proguardOptions in Android ++= options,
-    packagingOptions in Android := PackagingOptions(excludes, Seq(), merges)
+    packagingOptions in Android := PackagingOptions(excludes, List(), merges)
   )
 
-  lazy val cache: Seq[String] = Seq()
+  lazy val cache: List[String] = List()
 
-  lazy val options: Seq[String] = Seq()
+  lazy val options: List[String] = List()
 
-  lazy val excludes: Seq[String] = Seq()
+  lazy val excludes: List[String] = List()
 
-  lazy val merges: Seq[String] = Seq()
+  lazy val merges: List[String] = List()
 }
 
 object Tests {
-  def settings = Seq(
+  def settings = List(
     testOptions in Test += sbt.Tests.Argument("-oF"),
     exportJars in Test := false,
     fork in Test := true,
-    javaOptions in Test ++= Seq("-XX:+CMSClassUnloadingEnabled", "-noverify"),
+    javaOptions in Test ++= List("-XX:+CMSClassUnloadingEnabled", "-noverify"),
     unmanagedClasspath in Test ++= (bootClasspath in Android).value,
-    test in Test <<= test in Test dependsOn TrypAndroidKeys.symlinkLibs,
+    Keys.test in Test <<=
+      Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs,
     testOnly in Test <<= testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs
   )
 }
 
 object Multidex
 {
-  def settings(main: Seq[String]) = Seq(
-    dexMainClasses in Android := main ++ Seq(
+  def settings(main: List[String]) = List(
+    dexMainClasses in Android := main ++ List(
       "android/support/multidex/BuildConfig.class",
       "android/support/multidex/MultiDex$V14.class",
       "android/support/multidex/MultiDex$V19.class",
@@ -62,27 +68,32 @@ object Multidex
     dexMinimizeMain in Android := false
   )
 
-  def deps = Seq(
-    libraryDependencies ++= Seq(
+  def deps = List(
+    libraryDependencies ++= List(
       aar("com.android.support" % "multidex" % "1.+")
     )
   )
 }
 
+@Lenses
 case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
+  multidex: Boolean, manifest: Boolean, multidexMain: List[String] = List(),
+  manifestTokens: TemplatesKeys.Tokens = Map(),
   deps: List[ProjectReference] = Nil)
 
+@Lenses
 case class AndroidProject(basic: Project[AndroidDeps], aparams: AndroidParams,
   prog: Proguard)
 extends ProjectI[AndroidProject]
 
 object AndroidProject
 extends AndroidProjectInstances
+with ToAndroidProjectOps
 {
   def apply(name: String, deps: AndroidDeps, prog: Proguard,
   defaults: Setts, platform: String): AndroidProject =
     AndroidProject(Project(name, deps, defaults),
-      AndroidParams(false, platform, false), prog
+      AndroidParams(false, platform, false, false, false), prog
     )
 }
 
@@ -91,21 +102,32 @@ class AndroidProjectOps[A](pro: A)
 extends ToProjectOps
 with ToTransformIf
 {
+  implicit class LensSyntax[B](l: Lens[AndroidParams, B])
+  {
+    def ⇐(v: B) = apl(l).set(v)
+    def ++(v: B)(implicit m: Monoid[B]) = apl(l).append(v)
+    def ++!(v: B)(implicit m: Monoid[B]) = ++(v)(m)(pro)
+  }
+
+  implicit class BooleanLensSyntax(l: Lens[AndroidParams, Boolean])
+  {
+    def ! = (l ⇐ true)
+    def !! = (l ⇐ true)(pro)
+  }
+
   def aparams = builder.aparams(pro)
 
-  def adeps = builder.adeps(pro)
+  def apl[B](sub: Lens[AndroidParams, B]) = (builder.apl ^|-> sub)
 
-  def withAndroidParams(newParams: AndroidParams) = {
-    builder.withAndroidParams(pro)(newParams)
-  }
+  val AP = AndroidParams
+
+  def adeps = builder.adeps(pro)
 
   def androidTest = {
     pro.settings(Tests.settings)
   }
 
-  def aar = {
-    withAndroidParams(aparams.copy(aar = true))
-  }
+  def aar = AP.aar.!!
 
   def proguard = {
     pro.settings(builder.prog(pro).settings)
@@ -116,11 +138,18 @@ with ToTransformIf
 
   def platformSetting = platformTarget in Android := aparams.target
 
-  def transitive = withAndroidParams(aparams.copy(transitive = true))
+  def transitive = AP.transitive.!!
+
+  def multidex(main: String*) =
+    (AP.multidexMain ++ main.toList >>> AP.multidex.!)(pro)
+
+  def manifest(tokens: (String, String)*) = {
+    (AP.manifestTokens ++ tokens.toMap >>> AP.manifest.!)(pro)
+  }
 
   def protify = pro.settings(protifySettings)
 
-  def multidex(main: Seq[String] = List()) = {
+  def multidexWithDeps(main: List[String] = List()) = {
     builder.multidex(pro)(main)
   }
 
@@ -128,29 +157,43 @@ with ToTransformIf
     pro.settings(Multidex.deps)
   }
 
-  def multidexSettings(main: Seq[String]) = {
-    pro.settings(Multidex.settings(main))
-  }
-
-  def apk(pkg: String, mainDex: List[String] = Nil) =
-    builder.apk(pro)(pkg, mainDex)
+  def apk(pkg: String) =
+    builder.apk(pro)(pkg)
 
   def release = {
-    pro.settings(apkbuildDebug ~= { a ⇒ a(false); a })
+    pro.settingsV(apkbuildDebug ~= { a ⇒ a(false); a })
   }
 
   def arefs = adeps.aRefs(pro.name) ++ aparams.deps
 
   def androidDeps(projects: ProjectReference*) = {
-    withAndroidParams(aparams.copy(deps = aparams.deps ++ projects))
+    AP.deps ++! projects.toList
+  }
+
+  def reifyManifestSettings = {
+    aparams.manifest ??
+      List(generateManifest := true, manifestTokens := aparams.manifestTokens)
+  }
+
+  def reifyMultidexSettings = {
+    aparams.multidex ?? Multidex.settings(aparams.multidexMain).toList
+  }
+
+  // turns abstracted settings into sbt.Setting instances
+  // although this returns a builder, it doesn't commute
+  def reifyAccSettings = {
+    pro
+      .transformIf(aparams.aar)(_.settings(Aar.settings))
+      .settings(reifyManifestSettings)
+      .settings(reifyMultidexSettings)
+      .settings(pro.libraryDeps)
+      .settingsV(transitiveSetting, platformSetting)
   }
 
   def androidProject = {
     pro.basicProject
       .androidBuildWith(arefs: _*)
-      .transformIf(aparams.aar)(_.settings(Aar.settings: _*))
-      .settings(pro.libraryDeps ++ pro.params.settings: _*)
-      .settings(transitiveSetting, platformSetting)
+      .settings(pro.params.settings: _*)
       .enablePlugins(TrypAndroid)
   }
 
@@ -168,17 +211,17 @@ trait ToAndroidProjectOps
 trait AndroidProjectBuilder[A]
 extends ProjectBuilder[A]
 {
+  def apl: monocle.Lens[A, AndroidParams]
+
   def aparams(pro: A): AndroidParams
 
   def prog(pro: A): Proguard
 
   def adeps(pro: A): AndroidDeps
 
-  def withAndroidParams(pro: A)(newParams: AndroidParams): A
+  def apk(pro: A)(pkg: String): A
 
-  def apk(pro: A)(pkg: String, mainDex: List[String]): A
-
-  def multidex(pro: A)(main: Seq[String]): A
+  def multidex(pro: A)(main: List[String]): A
 }
 
 class AndroidBuilder
@@ -189,10 +232,14 @@ with ToTransformIf
 {
   type P = AndroidProject
 
+  def apl = AndroidProject.aparams
+
   def withParams(pro: P)(newParams: Params) =
     pro.copy(pro.basic.copy(params = newParams))
 
-  def project(pro: P) = pro.androidProject
+  def project(pro: P) = {
+    pro.reifyAccSettings.androidProject
+  }
 
   def deps(pro: P) = pro.basic.deps
 
@@ -206,32 +253,26 @@ with ToTransformIf
 
   def refs(pro: P) = deps(pro).refs(pro.name) ++ pro.params.deps
 
-  def withAndroidParams(pro: P)(par: AndroidParams) = pro.copy(aparams = par)
-
-  def apk(pro: P)(pkg: String, mainDex: List[String]) = {
+  def apk(pro: P)(pkg: String) = {
     val path = pkg.replace('.', '/')
     pro
       .proguard
-      .multidexSettings(
-        s"$path/Application.class" :: s"$path/MainActivity.class" :: mainDex)
-      .settingsV(dexShards := true)
+      .multidex(s"$path/Application.class", s"$path/MainActivity.class")
   }
 
-  def multidex(pro: P)(main: Seq[String]) = {
-    pro.multidexDeps.multidexSettings(main)
+  def multidex(pro: P)(main: List[String]) = {
+    pro.multidexDeps.multidex(main: _*)
   }
 
-  def info(pro: P) = {
-    val deps = adeps(pro).deps.get(pro.name) map { d ⇒
-      "   deps: " :: d.map("     " + _.info).toList
-    } getOrElse(Nil)
-    List(
-      s" ○ android project ${pro.name}"
-    ) ++ deps
+  def show(pro: P) = {
+    import ProjectShow._
+    val info = ProjectShow.deps(~pro.adeps.deps.get(pro.name)) ++ settings(pro)
+    s" ○ android project ${pro.name}" :: shift(info)
   }
 }
 
 trait AndroidProjectInstances
+extends ToProjectOps
 {
   implicit val androidProjectBuilder: AndroidProjectBuilder[AndroidProject] =
     new AndroidBuilder

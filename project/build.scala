@@ -87,7 +87,8 @@ with Tryplug
       "tek/tryplug", "tryplug", "macros")
 
     val core = ids(
-      tryplug
+      tryplug,
+      "com.github.julien-truffaut" %% "monocle-macro" % "+"
     )
 
     val android = ids(
