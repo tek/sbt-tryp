@@ -63,6 +63,7 @@ with Tryplug
           (home / ".ivy2" / "cache" / "org.scalamacros" / name / "jars" *
             s"$name*.jar").get.headOption
         }
-      }
+      },
+      addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
     )
 }
