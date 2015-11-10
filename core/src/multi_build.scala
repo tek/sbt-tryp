@@ -33,8 +33,6 @@ with ProjectInstances
 
   def mpb(name: String) = metaProject(name)
 
-  // lazy val macroConsole = macroConsoleBuilder.!
-
   lazy val macroConsole = metaProject("macro-console")
     .settingsV(
       scalacOptions ++= {
