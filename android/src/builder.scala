@@ -163,8 +163,13 @@ with ParamLensSyntax[AndroidParams, A]
       List(generateManifest := true, manifestTokens := aparams.manifestTokens)
   }
 
+  val multidexRunnerSetting = {
+    instrumentTestRunner := "com.android.test.runner.MultiDexTestRunner"
+  }
+
   def reifyMultidexSettings = {
-    aparams.multidex ?? Multidex.settings(aparams.multidexMain).toList
+    aparams.multidex ??
+      (multidexRunnerSetting :: Multidex.settings(aparams.multidexMain))
   }
 
   // turns abstracted settings into sbt.Setting instances
