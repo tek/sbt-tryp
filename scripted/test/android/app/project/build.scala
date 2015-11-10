@@ -17,7 +17,7 @@ object Proguard
 extends tryp.Proguard
 {
 
-  override lazy val options = Seq(
+  override lazy val options = List(
     "-dontwarn **"
   )
 }

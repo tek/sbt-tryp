@@ -97,27 +97,15 @@ with ToAndroidProjectOps
     )
 }
 
-class AndroidProjectOps[A](pro: A)
+class AndroidProjectOps[A](val pro: A)
 (implicit builder: AndroidProjectBuilder[A])
 extends ToProjectOps
 with ToTransformIf
+with ParamLensSyntax[AndroidParams, A]
 {
-  implicit class LensSyntax[B](l: Lens[AndroidParams, B])
-  {
-    def ⇐(v: B) = apl(l).set(v)
-    def ++(v: B)(implicit m: Monoid[B]) = apl(l).append(v)
-    def ++!(v: B)(implicit m: Monoid[B]) = ++(v)(m)(pro)
-  }
-
-  implicit class BooleanLensSyntax(l: Lens[AndroidParams, Boolean])
-  {
-    def ! = (l ⇐ true)
-    def !! = (l ⇐ true)(pro)
-  }
-
   def aparams = builder.aparams(pro)
 
-  def apl[B](sub: Lens[AndroidParams, B]) = (builder.apl ^|-> sub)
+  def paramLens = builder.aparamLens
 
   val AP = AndroidParams
 
@@ -211,8 +199,6 @@ trait ToAndroidProjectOps
 trait AndroidProjectBuilder[A]
 extends ProjectBuilder[A]
 {
-  def apl: monocle.Lens[A, AndroidParams]
-
   def aparams(pro: A): AndroidParams
 
   def prog(pro: A): Proguard
@@ -222,6 +208,8 @@ extends ProjectBuilder[A]
   def apk(pro: A)(pkg: String): A
 
   def multidex(pro: A)(main: List[String]): A
+
+  def aparamLens: monocle.Lens[A, AndroidParams]
 }
 
 class AndroidBuilder
@@ -231,11 +219,6 @@ with ToAndroidProjectOps
 with ToTransformIf
 {
   type P = AndroidProject
-
-  def apl = AndroidProject.aparams
-
-  def withParams(pro: P)(newParams: Params) =
-    pro.copy(pro.basic.copy(params = newParams))
 
   def project(pro: P) = {
     pro.reifyAccSettings.androidProject
@@ -269,6 +252,10 @@ with ToTransformIf
     val info = ProjectShow.deps(~pro.adeps.deps.get(pro.name)) ++ settings(pro)
     s" ○ android project ${pro.name}" :: shift(info)
   }
+
+  def paramLens = AndroidProject.basic ^|-> Project.params
+
+  def aparamLens = AndroidProject.aparams
 }
 
 trait AndroidProjectInstances

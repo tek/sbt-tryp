@@ -4,6 +4,9 @@ import scalaz._, Scalaz._
 import scalaz.std.list.listShow
 import scalaz.Show
 
+import monocle.Lens
+import monocle.macros.Lenses
+
 import sbt._
 import sbt.Keys._
 
@@ -24,6 +27,7 @@ object Paradise {
   )
 }
 
+@Lenses
 case class Params(name: String, settings: Setts,
   path: String, bintray: Boolean, deps: List[SbtDep] = Nil)
 
@@ -38,6 +42,7 @@ abstract class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
   def info = builder.show(self)
 }
 
+@Lenses
 case class Project[D <: Deps](params: Params, deps: D)
 extends ProjectI[Project[D]]
 
@@ -69,9 +74,34 @@ object ToSbt
     }
 }
 
-class ProjectOps[A](pro: A)
+trait ParamLensSyntax[Par, Pro]
+{
+  def pro: Pro
+  def paramLens: Lens[Pro, Par]
+
+  implicit class LensOps[A](l: Lens[Par, A])
+  {
+    private[this] def chain = paramLens ^|-> l
+
+    def ⇐(v: A) = chain.set(v)
+    def ⇐!(v: A) = ⇐(v)(pro)
+    def ++(v: A)(implicit m: Monoid[A]) = chain.append(v)
+    def ++!(v: A)(implicit m: Monoid[A]) = ++(v)(m)(pro)
+    def ::(v: A)(implicit m: Monoid[A]) = chain.prepend(v)
+    def !::(v: A)(implicit m: Monoid[A]) = ++(v)(m)(pro)
+  }
+
+  implicit class BooleanLensOps(l: Lens[Par, Boolean])
+  {
+    def ! = l ⇐ true
+    def !! = this.!(pro)
+  }
+}
+
+class ProjectOps[A](val pro: A)
 (implicit builder: ProjectBuilder[A])
 extends ToTransformIf
+with ParamLensSyntax[Params, A]
 {
   def name = builder.params(pro).name
 
@@ -79,16 +109,15 @@ extends ToTransformIf
 
   def params = builder.params(pro)
 
-  def withParams(newParams: Params) =
-    builder.withParams(pro)(newParams)
+  def paramLens = builder.paramLens
+
+  val P = Params
 
   def export = {
     settings(Export.settings)
   }
 
-  def path(pt: String) = {
-    withParams(params.copy(path = pt))
-  }
+  val path = P.path ⇐! _
 
   def at(pt: String) = path(pt)
 
@@ -101,11 +130,11 @@ extends ToTransformIf
   val / = desc _
 
   def settings(extra: Seq[Setting[_]]) = {
-    withParams(params.copy(settings = params.settings ++ extra.toList))
+    P.settings ++! extra.toList
   }
 
   def settingsPre(extra: Seq[Setting[_]]) = {
-    withParams(params.copy(settings = extra.toList ++ params.settings))
+    extra.toList !:: P.settings
   }
 
   def settingsV(extra: Setting[_]*) = settings(extra.toList)
@@ -134,17 +163,13 @@ extends ToTransformIf
     )
   }
 
-  def bintray = {
-    withParams(params.copy(bintray = true))
-  }
+  def bintray = P.bintray.!!
 
   def logback = {
     settingsV(TrypBuildKeys.generateLogback := true)
   }
 
-  def dep(pros: SbtDep*) = {
-    withParams(params.copy(deps = params.deps ++ pros))
-  }
+  def dep(pros: SbtDep*) = P.deps ++! pros.toList
 
   def refs = builder.refs(pro)
 
@@ -179,12 +204,12 @@ trait ToProjectOps
 
 trait ProjectBuilder[P]
 {
-  def withParams(pro: P)(newParams: Params): P
   def params(pro: P): Params
   def deps(pro: P): Deps
   def project(pro: P): sbt.Project
   def refs(pro: P): List[SbtDep]
   def show(pro: P): List[String]
+  def paramLens: monocle.Lens[P, Params]
 }
 
 object Project
@@ -208,9 +233,6 @@ with ToTransformIf
 
   def params(pro: P) = pro.params
 
-  def withParams(pro: P)(newParams: Params) =
-    pro.copy(params = newParams)
-
   def refs(pro: P) = pro.deps.refs(pro.name).toList ++ pro.params.deps
 
   def show(pro: P) = {
@@ -218,6 +240,8 @@ with ToTransformIf
     val info = ProjectShow.deps(~pro.deps.deps.get(pro.name)) ++ settings(pro)
     s" ○ project ${pro.name}" :: shift(info)
   }
+
+  def paramLens = Project.params
 }
 
 object ProjectShow
