@@ -50,13 +50,11 @@ extends Deps
   )
 
   override def unit = super.unit ++ ids(
-    "org.apache.maven" % "maven-ant-tasks" % "2.1.3",
-    "junit" % "junit" % "4.+",
     "com.geteit" %% "robotest" % "+"
   )
 
   override def integration = ids(
-    "junit" % "junit" % "4.+",
+    "junit" % "junit" % "4.10",
     "com.jayway.android.robotium" % "robotium-solo" % "5.+"
   )
 
