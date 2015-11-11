@@ -53,7 +53,7 @@ with AndroidProjectInstances
   lazy val manifestResourceFilter =
     (managedResources in Compile) := {
       (managedResources in Compile).value
-        .filterNot { _.getName == "AndroidManifest.xml" }
+        .filterNot { _.getName == manifestName }
     }
 
   def androidDefaults: List[Setting[_]] = List(

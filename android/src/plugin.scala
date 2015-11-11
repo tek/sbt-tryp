@@ -78,8 +78,6 @@ extends AutoPlugin
 
   val autoImport = TrypAndroidKeys
 
-  val manifestFileName = "AndroidManifest.xml"
-
   override def buildSettings = super.buildSettings ++ Seq(
     appName := "appName"
   )
@@ -91,10 +89,10 @@ extends AutoPlugin
     manifestOutput := {
       val dir = if (generateManifest.value) target.value
       else baseDirectory.value
-      dir / manifestFileName
+      dir / manifestName
     },
     generateManifest := false,
-    manifestTemplate := metaRes.value / manifestFileName,
+    manifestTemplate := metaRes.value / manifestName,
     manifestTokens := Map(),
     templates ++= {
       if (generateManifest.value) Seq(manifestTemplateData.value)
