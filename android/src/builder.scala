@@ -168,8 +168,7 @@ with ParamLensSyntax[AndroidParams, A]
   }
 
   def reifyMultidexSettings = {
-    aparams.multidex ??
-      (multidexRunnerSetting :: Multidex.settings(aparams.multidexMain))
+    aparams.multidex ?? Multidex.settings(aparams.multidexMain)
   }
 
   // turns abstracted settings into sbt.Setting instances
