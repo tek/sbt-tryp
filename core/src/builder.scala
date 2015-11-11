@@ -237,7 +237,8 @@ with ToTransformIf
 
   def show(pro: P) = {
     import ProjectShow._
-    val info = ProjectShow.deps(~pro.deps.deps.get(pro.name)) ++ settings(pro)
+    val info = ProjectShow.deps(~pro.deps.deps.get(pro.name)) ++
+      settings(pro) ++ ProjectShow.refs(pro)
     s" ○ project ${pro.name}" :: shift(info)
   }
 
@@ -252,7 +253,14 @@ extends ToProjectOps
   }
 
   def deps(ds: List[TrypId]) = {
-    "deps:" :: shift(ds map(_.info))
+    if (ds.isEmpty) Nil
+    else "deps:" :: shift(ds map(_.info))
+  }
+
+  def refs[A: ProjectBuilder](pro: A) = {
+    val r = pro.refs map(_.toString)
+    if (r.isEmpty) Nil
+    else "refs:" :: shift(r)
   }
 
   def shift(lines: List[String]) = {

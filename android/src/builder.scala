@@ -217,6 +217,18 @@ extends ProjectBuilder[A]
   def aparamLens: monocle.Lens[A, AndroidParams]
 }
 
+object AndroidProjectShow
+extends ToAndroidProjectOps
+{
+  import ProjectShow._
+
+  def arefs[A: AndroidProjectBuilder](pro: A) = {
+    val r = pro.arefs map(_.toString)
+    if (r.isEmpty) Nil
+    else "android refs:" :: shift(r)
+  }
+}
+
 class AndroidBuilder
 extends AndroidProjectBuilder[AndroidProject]
 with ToProjectOps
@@ -253,9 +265,11 @@ with ToTransformIf
   }
 
   def show(pro: P) = {
-    import ProjectShow._
-    val info = ProjectShow.deps(~pro.adeps.deps.get(pro.name)) ++ settings(pro)
-    s" ○ android project ${pro.name}" :: shift(info)
+    val PS = ProjectShow
+    val info =
+      PS.deps(~pro.adeps.deps.get(pro.name)) ++ PS.settings(pro) ++
+        PS.refs(pro) ++ AndroidProjectShow.arefs(pro)
+    s" ○ android project ${pro.name}" :: PS.shift(info)
   }
 
   def paramLens = AndroidProject.basic ^|-> Project.params
