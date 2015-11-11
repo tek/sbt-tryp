@@ -24,6 +24,8 @@ object TrypAndroidKeys
     "location of the template for AndroidManifest.xml generation") in TrypC
   val manifestOutput = Def.settingKey[File](
     "location of the generated AndroidManifest.xml") in TrypC
+  val testManifest = Def.settingKey[File](
+    "location of the AndroidManifest.xml for tests") in TrypC
   val symlinkLibs = taskKey[Seq[File]]("symlink libs for robolectric") in TrypC
   val androidPackage = Def.settingKey[String]("package for manifest") in TrypC
   val aarModule = Def.settingKey[String]("aar subpackage") in TrypC

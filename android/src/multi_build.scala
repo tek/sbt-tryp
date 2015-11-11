@@ -35,6 +35,9 @@ with AndroidProjectInstances
       override def bin = (target in Compile).value / "bin"
       override def gen = (target in Compile).value / "gen"
       override def manifest = manifestOutput.value
+      override def testManifest = {
+        TrypAndroidKeys.testManifest.?.value getOrElse(super.testManifest)
+      }
     }
 
   lazy val typedResSetting = typedResources := false
