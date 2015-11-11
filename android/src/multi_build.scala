@@ -4,6 +4,8 @@ import sbt._
 import sbt.Keys._
 import android.Keys._
 
+import TrypAndroidKeys._
+
 object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
 
@@ -18,6 +20,10 @@ with AndroidProjectInstances
 
   val platform = "android-21"
 
+  override def settings = super.settings ++ Seq(
+    appName := title getOrElse(appName.value)
+  )
+
   lazy val warningSetting = transitiveAndroidWarning := false
 
   lazy val layoutSetting = projectLayout :=
@@ -28,6 +34,7 @@ with AndroidProjectInstances
       override def testScalaSource = testSources
       override def bin = (target in Compile).value / "bin"
       override def gen = (target in Compile).value / "gen"
+      override def manifest = manifestOutput.value
     }
 
   lazy val typedResSetting = typedResources := false
@@ -40,6 +47,15 @@ with AndroidProjectInstances
 
   lazy val updateCheckSetting = updateCheck := {}
 
+  lazy val manifestDep =
+    manifest <<= manifest dependsOn TemplatesKeys.templateResources
+
+  lazy val manifestResourceFilter =
+    (managedResources in Compile) := {
+      (managedResources in Compile).value
+        .filterNot { _.getName == "AndroidManifest.xml" }
+    }
+
   def androidDefaults: List[Setting[_]] = List(
     warningSetting,
     layoutSetting,
@@ -47,7 +63,9 @@ with AndroidProjectInstances
     lintSetting,
     debugIncludesTestsSetting,
     proguardInDebugSetting,
-    updateCheckSetting
+    updateCheckSetting,
+    manifestDep,
+    manifestResourceFilter
   )
 
   def apb(name: String) =

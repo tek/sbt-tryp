@@ -22,7 +22,12 @@ object TrypAndroidKeys
     "automatically generate AndroidManifest.xml") in TrypC
   val manifestTemplate = Def.settingKey[File](
     "location of the template for AndroidManifest.xml generation") in TrypC
+  val manifestOutput = Def.settingKey[File](
+    "location of the generated AndroidManifest.xml") in TrypC
   val symlinkLibs = taskKey[Seq[File]]("symlink libs for robolectric") in TrypC
+  val androidPackage = Def.settingKey[String]("package for manifest") in TrypC
+  val aarModule = Def.settingKey[String]("aar subpackage") in TrypC
+  val appName = Def.settingKey[String]("build-wide app name") in TrypC
 }
 import TrypAndroidKeys._
 
@@ -73,9 +78,23 @@ extends AutoPlugin
 
   val autoImport = TrypAndroidKeys
 
+  val manifestFileName = "AndroidManifest.xml"
+
+  override def buildSettings = super.buildSettings ++ Seq(
+    appName := "appName"
+  )
+
   override lazy val projectSettings = super.projectSettings ++ Seq(
+    aarModule := name.value,
+    androidPackage :=
+      s"${organization.value}.${appName.value}.${aarModule.value}",
+    manifestOutput := {
+      val dir = if (generateManifest.value) target.value
+      else baseDirectory.value
+      dir / manifestFileName
+    },
     generateManifest := false,
-    manifestTemplate := metaRes.value / "AndroidManifest.xml",
+    manifestTemplate := metaRes.value / manifestFileName,
     manifestTokens := Map(),
     templates ++= {
       if (generateManifest.value) Seq(manifestTemplateData.value)
