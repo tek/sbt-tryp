@@ -160,7 +160,7 @@ with ParamLensSyntax[AndroidParams, A]
 
   def reifyManifestSettings = {
     aparams.manifest ??
-      List(generateManifest := true, manifestTokens := aparams.manifestTokens)
+      List(generateManifest := true, manifestTokens ++= aparams.manifestTokens)
   }
 
   val multidexRunnerSetting = {
