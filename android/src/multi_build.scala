@@ -54,7 +54,7 @@ with AndroidProjectInstances
     AndroidProject(name, deps, proguard, androidDefaults, platform)
 
   def adp(name: String) =
-    apb(name).antSrc.paradise().settingsV(namePrefix).export
+    apb(name).antSrc.paradise().settingsV(prefixedName).export
 
   def aar(name: String) = adp(name).aar
 }

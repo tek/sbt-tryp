@@ -15,21 +15,23 @@ with ProjectInstances
 
   def pb(name: String) = Project(name, deps)
 
-  val prefix: Option[String] = None
+  val title: Option[String] = None
 
-  lazy val namePrefix = name := {
-    prefix map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
+  lazy val prefixedName = name := {
+    title map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
   }
 
-  def tdp(name: String) = pb(name).antSrc.paradise().settingsV(namePrefix)
+  def tdp(name: String) = pb(name).antSrc.paradise().settingsV(prefixedName)
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
   lazy val root = pb("root") ~ "." !
 
+  def metaTarget = target := (target in root).value / name.value
+
   def metaProject(n: String) = tdp(n)
     .path(".")
-    .settingsV(target := (target in root).value / name.value)
+    .settingsV(metaTarget)
 
   def mpb(name: String) = metaProject(name)
 
