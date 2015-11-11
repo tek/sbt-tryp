@@ -66,11 +66,13 @@ extends MultiBuildBase
 
   override def projects = super.projects ++ trypProjects.map(_.reify)
 
-  def commandName = prefix map(_ + "-projects") getOrElse("tryp-projects")
+  def projectInfoCommandName = "tryp-projects"
 
   def projectInfoCommand = {
-    Command.args(commandName, "<projects>") { (state, projects) ⇒
-      trypProjects flatMap(_.info :+ "") foreach(state.log.info(_))
+    Command.args(projectInfoCommandName, "<projects>") { (state, projects) ⇒
+      val pros = if (projects.isEmpty) trypProjects
+      else trypProjects filter(a ⇒ projects contains a.name)
+      pros flatMap(_.info :+ "") foreach(state.log.info(_))
       state
     }
   }

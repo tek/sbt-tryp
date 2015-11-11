@@ -40,6 +40,8 @@ abstract class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
   def ! = reify
 
   def info = builder.show(self)
+
+  def name = builder.params(self).name
 }
 
 @Lenses
