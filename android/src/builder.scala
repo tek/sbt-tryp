@@ -24,8 +24,12 @@ trait Proguard {
     proguardScala in Android := true,
     proguardCache in Android ++= cache,
     proguardOptions in Android ++= options,
-    packagingOptions in Android := PackagingOptions(excludes, List(), merges)
+    proguardOptions ++= options
   )
+
+  lazy val packaging = {
+    packagingOptions := PackagingOptions(excludes, List(), merges)
+  }
 
   lazy val cache: List[String] = List()
 
@@ -171,6 +175,10 @@ with ParamLensSyntax[AndroidParams, A]
     aparams.multidex ?? Multidex.settings(aparams.multidexMain)
   }
 
+  def reifyPackagingOptions = {
+    builder.prog(pro).packaging
+  }
+
   // turns abstracted settings into sbt.Setting instances
   // although this returns a builder, it doesn't commute
   def reifyAccSettings = {
@@ -178,6 +186,7 @@ with ParamLensSyntax[AndroidParams, A]
       .transformIf(aparams.aar)(_.settings(Aar.settings))
       .settings(reifyManifestSettings)
       .settings(reifyMultidexSettings)
+      .settingsV(reifyPackagingOptions)
       .settings(pro.libraryDeps)
       .settingsV(transitiveSetting, platformSetting)
   }
