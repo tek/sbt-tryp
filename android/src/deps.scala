@@ -53,8 +53,7 @@ extends Deps
     "com.geteit" %% "robotest" % "+"
   )
 
-  override def integration = ids(
-    "junit" % "junit" % "4.10",
+  def integration = ids(
     "com.jayway.android.robotium" % "robotium-solo" % "5.+"
   )
 
