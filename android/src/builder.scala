@@ -20,10 +20,9 @@ object Aar
 
 trait Proguard {
   lazy val settings = List(
-    useProguard in Android := true,
-    proguardScala in Android := true,
-    proguardCache in Android ++= cache,
-    proguardOptions in Android ++= options,
+    useProguard := true,
+    proguardScala := true,
+    proguardCache ++= cache,
     proguardOptions ++= options
   )
 
@@ -46,7 +45,7 @@ object Tests {
     exportJars in Test := false,
     fork in Test := true,
     javaOptions in Test ++= List("-XX:+CMSClassUnloadingEnabled", "-noverify"),
-    unmanagedClasspath in Test ++= (bootClasspath in Android).value,
+    unmanagedClasspath in Test ++= bootClasspath.value,
     Keys.test in Test <<=
       Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs,
     testOnly in Test <<= testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs
@@ -56,7 +55,7 @@ object Tests {
 object Multidex
 {
   def settings(main: List[String]) = List(
-    dexMainClasses in Android := main ++ List(
+    dexMainClasses := main ++ List(
       "android/support/multidex/BuildConfig.class",
       "android/support/multidex/MultiDex$V14.class",
       "android/support/multidex/MultiDex$V19.class",
@@ -68,8 +67,8 @@ object Multidex
       "android/support/multidex/ZipUtil$CentralDirectory.class",
       "android/support/multidex/ZipUtil.class"
     ),
-    dexMulti in Android := true,
-    dexMinimizeMain in Android := false
+    dexMulti := true,
+    dexMinimizeMain := false
   )
 
   def deps = List(
@@ -126,9 +125,9 @@ with ParamLensSyntax[AndroidParams, A]
   }
 
   def transitiveSetting =
-    transitiveAndroidLibs in Android := aparams.transitive
+    transitiveAndroidLibs := aparams.transitive
 
-  def platformSetting = platformTarget in Android := aparams.target
+  def platformSetting = platformTarget := aparams.target
 
   def transitive = AP.transitive.!!
 
