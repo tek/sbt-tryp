@@ -13,6 +13,7 @@ import sbt.Keys._
 import bintray.BintrayPlugin
 
 import Types._
+import TrypBuildKeys._
 
 object Export {
   lazy val settings = List(exportJars := true)
@@ -30,6 +31,8 @@ object Paradise {
 @Lenses
 case class Params(name: String, settings: Setts,
   path: String, bintray: Boolean, deps: List[SbtDep] = Nil)
+case class TemplateParams(write: Boolean = false,
+  tokens: TemplatesKeys.Tokens = Map())
 
 abstract class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
 {
@@ -97,6 +100,12 @@ trait ParamLensSyntax[Par, Pro]
   {
     def ! = l ⇐ true
     def !! = this.!(pro)
+  }
+
+  implicit class TemplateLensOps(l: Lens[Par, TemplateParams])
+  {
+    def write = l ^|-> TemplateParams.write
+    def tokens = l ^|-> TemplateParams.tokens
   }
 }
 

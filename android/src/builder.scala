@@ -80,9 +80,8 @@ object Multidex
 
 @Lenses
 case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
-  multidex: Boolean, manifest: Boolean, multidexMain: List[String] = List(),
-  manifestTokens: TemplatesKeys.Tokens = Map(),
-  deps: List[ProjectReference] = Nil)
+  manifest: TemplateParams, multidex: Boolean,
+  multidexMain: List[String] = List(), deps: List[ProjectReference] = Nil)
 
 @Lenses
 case class AndroidProject(basic: Project[AndroidDeps], aparams: AndroidParams,
@@ -96,7 +95,7 @@ with ToAndroidProjectOps
   def apply(name: String, deps: AndroidDeps, prog: Proguard,
   defaults: Setts, platform: String): AndroidProject =
     AndroidProject(Project(name, deps, defaults),
-      AndroidParams(false, platform, false, false, false), prog
+      AndroidParams(false, platform, false, TemplateParams(), false), prog
     )
 }
 
@@ -135,7 +134,7 @@ with ParamLensSyntax[AndroidParams, A]
     (AP.multidexMain ++ main.toList >>> AP.multidex.!)(pro)
 
   def manifest(tokens: (String, String)*) = {
-    (AP.manifestTokens ++ tokens.toMap >>> AP.manifest.!)(pro)
+    (AP.manifest.tokens ++ tokens.toMap >>> AP.manifest.write.!)(pro)
   }
 
   def protify = pro.settings(protifySettings)
@@ -162,8 +161,9 @@ with ParamLensSyntax[AndroidParams, A]
   }
 
   def reifyManifestSettings = {
-    aparams.manifest ??
-      List(generateManifest := true, manifestTokens ++= aparams.manifestTokens)
+    aparams.manifest.write ??
+      List(generateManifest := true,
+        manifestTokens ++= aparams.manifest.tokens)
   }
 
   val multidexRunnerSetting = {
