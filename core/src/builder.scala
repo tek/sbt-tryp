@@ -29,10 +29,19 @@ object Paradise {
 }
 
 @Lenses
-case class Params(name: String, settings: Setts,
-  path: String, bintray: Boolean, deps: List[SbtDep] = Nil)
 case class TemplateParams(write: Boolean = false,
   tokens: TemplatesKeys.Tokens = Map())
+
+@Lenses
+case class Params(settings: Setts, deps: List[SbtDep], name: String,
+  path: String, bintray: Boolean, logback: TemplateParams)
+
+object Params
+{
+  def create(name: String, settings: Setts) = {
+    Params(settings, Nil, name, name, false, TemplateParams())
+  }
+}
 
 abstract class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
 {
@@ -176,8 +185,13 @@ with ParamLensSyntax[Params, A]
 
   def bintray = P.bintray.!!
 
-  def logback = {
-    settingsV(TrypBuildKeys.generateLogback := true)
+  def logback(tokens: (String, String)*) = {
+    (P.logback.tokens ++ tokens.toMap >>> P.logback.write.!)(pro)
+  }
+
+  def reifyLogbackSettings = {
+    params.logback.write ??
+      List(generateLogback := true, logbackTokens ++= params.logback.tokens)
   }
 
   def dep(pros: SbtDep*) = P.deps ++! pros.toList
@@ -229,7 +243,7 @@ with ToProjectOps
 {
   def apply[D <: Deps](name: String, deps: D, defaults: Setts = Nil)
   : Project[D] =
-    Project(Params(name, defaults, name, false), deps)
+    Project(Params.create(name, defaults), deps)
 }
 
 class BasicProjectBuilder[D <: Deps]
