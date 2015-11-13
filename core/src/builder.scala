@@ -204,6 +204,7 @@ with ParamLensSyntax[Params, A]
 
   def basicProject = {
     sbt.Project(name, file(params.path))
+      .settings(reifyLogbackSettings)
       .dependsOn(refs: _*)
       .transformIf(!params.bintray)(_.disablePlugins(BintrayPlugin))
   }
