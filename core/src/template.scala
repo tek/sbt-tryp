@@ -48,19 +48,25 @@ extends AutoPlugin
       target
   }
 
+  def cacher(cacheDir: File) =
+    FileFunction.cached(cacheDir)(FilesInfo.lastModified, FilesInfo.exists) _
+
   def templatesTask = Def.task {
     val cacheDir = streams.value.cacheDirectory / cacheName
-    val grouped = templates.value map(_._1._1) zip(templates.value) toMap
-    val update: Set[File] ⇒ Set[File] = sources ⇒ {
-      sources flatMap { f ⇒
-        grouped.get(f) map { case ((source, target), values) ⇒
-          streams.value.log.info(s"generating $target")
-          template(source, target, values, keyFormatter.value)
+    val grouped = templates.value
+      .map(_._1._1)
+      .zip(templates.value)
+      .toMap
+    val update: (ChangeReport[File], ChangeReport[File]) ⇒ Set[File] =
+      (sources, outputs) ⇒ {
+        sources.modified flatMap { f ⇒
+          grouped.get(f) map { case ((source, target), values) ⇒
+            streams.value.log.info(s"generating $target")
+            template(source, target, values, keyFormatter.value)
+          }
         }
-      }
     }
-    FileFunction.cached(cacheDir, FilesInfo.lastModified)(update)(
-      grouped.keys.toSet).toSeq
+    cacher(cacheDir)(update)(grouped.keys.toSet).toSeq
   }
 
   override lazy val projectSettings = Seq(
