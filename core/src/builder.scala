@@ -95,14 +95,19 @@ trait ParamLensSyntax[Par, Pro]
 
   implicit class LensOps[A](l: Lens[Par, A])
   {
-    private[this] def chain = paramLens ^|-> l
+    def chain = paramLens ^|-> l
 
     def ⇐(v: A) = chain.set(v)
-    def ⇐!(v: A) = ⇐(v)(pro)
+    def ⇐!(v: A) = l.⇐(v)(pro)
     def ++(v: A)(implicit m: Monoid[A]) = chain.append(v)
-    def ++!(v: A)(implicit m: Monoid[A]) = ++(v)(m)(pro)
+    def ++!(v: A)(implicit m: Monoid[A]) = l.++(v)(m)(pro)
     def ::(v: A)(implicit m: Monoid[A]) = chain.prepend(v)
-    def !::(v: A)(implicit m: Monoid[A]) = ++(v)(m)(pro)
+    def !::(v: A)(implicit m: Monoid[A]) = l.::(v)(m)(pro)
+  }
+
+  implicit class MapLensOps[A, B](l: Lens[Par, Map[A, B]])
+  {
+    def ++(v: Map[A, B]) = l.chain.modify(_ ++ v)
   }
 
   implicit class BooleanLensOps(l: Lens[Par, Boolean])
