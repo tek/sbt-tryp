@@ -151,7 +151,7 @@ with ParamLensSyntax[AndroidParams, A]
     builder.apk(pro)(pkg)
 
   def release = {
-    pro.settingsV(apkbuildDebug ~= { a ⇒ a(false); a })
+    proguard.settingsV(apkbuildDebug ~= { a ⇒ a(false); a })
   }
 
   def arefs = adeps.aRefs(pro.name) ++ aparams.deps
