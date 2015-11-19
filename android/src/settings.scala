@@ -4,6 +4,7 @@ import sbt._
 import Keys._
 import android.Keys._
 import TrypAndroidKeys._
+import TrypBuildKeys._
 
 object Aar
 {
@@ -45,6 +46,7 @@ object Tests {
       Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs,
     testOnly in Test <<=
       testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs,
+    logbackOutput := (resourceDirectory in Compile).value / manifestName,
     javaOptions in Test ++= Seq(
       "-XX:+CMSClassUnloadingEnabled",
       "-noverify",
