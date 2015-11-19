@@ -13,71 +13,6 @@ import android.protify.Keys._
 import Types._
 import TrypAndroidKeys._
 
-object Aar
-{
-  lazy val settings = android.Plugin.buildAar.toList ++ Export.settings
-}
-
-trait Proguard {
-  lazy val settings = List(
-    useProguard := true,
-    proguardScala := true,
-    proguardCache ++= cache,
-    proguardOptions ++= options
-  )
-
-  lazy val packaging = {
-    packagingOptions := PackagingOptions(excludes, List(), merges)
-  }
-
-  lazy val cache: List[String] = List()
-
-  lazy val options: List[String] = List()
-
-  lazy val excludes: List[String] = List()
-
-  lazy val merges: List[String] = List()
-}
-
-object Tests {
-  def settings = List(
-    testOptions in Test += sbt.Tests.Argument("-oF"),
-    exportJars in Test := false,
-    fork in Test := true,
-    javaOptions in Test ++= List("-XX:+CMSClassUnloadingEnabled", "-noverify"),
-    unmanagedClasspath in Test ++= bootClasspath.value,
-    Keys.test in Test <<=
-      Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs,
-    testOnly in Test <<= testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs
-  )
-}
-
-object Multidex
-{
-  def settings(main: List[String]) = List(
-    dexMainClasses := main ++ List(
-      "android/support/multidex/BuildConfig.class",
-      "android/support/multidex/MultiDex$V14.class",
-      "android/support/multidex/MultiDex$V19.class",
-      "android/support/multidex/MultiDex$V4.class",
-      "android/support/multidex/MultiDex.class",
-      "android/support/multidex/MultiDexApplication.class",
-      "android/support/multidex/MultiDexExtractor$1.class",
-      "android/support/multidex/MultiDexExtractor.class",
-      "android/support/multidex/ZipUtil$CentralDirectory.class",
-      "android/support/multidex/ZipUtil.class"
-    ),
-    dexMulti := true,
-    dexMinimizeMain := false
-  )
-
-  def deps = List(
-    libraryDependencies ++= List(
-      aar("com.android.support" % "multidex" % "1.+")
-    )
-  )
-}
-
 @Lenses
 case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
   manifest: TemplateParams, multidex: Boolean,
@@ -113,15 +48,13 @@ with ParamLensSyntax[AndroidParams, A]
 
   def adeps = builder.adeps(pro)
 
-  def androidTest = {
-    pro.settings(Tests.settings)
-  }
+  def robotest = pro.settings(Tests.robotest)
+
+  def integration = debug.settings(Tests.integration)
 
   def aar = AP.aar.!!
 
-  def proguard = {
-    pro.settings(builder.prog(pro).settings)
-  }
+  def proguard = pro.settings(builder.prog(pro).settings)
 
   def transitiveSetting =
     transitiveAndroidLibs := aparams.transitive
@@ -152,6 +85,10 @@ with ParamLensSyntax[AndroidParams, A]
 
   def release = {
     proguard.settingsV(apkbuildDebug ~= { a ⇒ a(false); a })
+  }
+
+  def debug = {
+    protify.settingsV(apkbuildDebug ~= { a ⇒ a(true); a })
   }
 
   def arefs = adeps.aRefs(pro.name) ++ aparams.deps
