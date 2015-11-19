@@ -46,7 +46,7 @@ object Tests {
       Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs,
     testOnly in Test <<=
       testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs,
-    logbackOutput := (resourceDirectory in Compile).value / manifestName,
+    logbackOutput := resourceManaged.value / logbackName,
     javaOptions in Test ++= Seq(
       "-XX:+CMSClassUnloadingEnabled",
       "-noverify",

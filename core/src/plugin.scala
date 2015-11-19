@@ -12,13 +12,13 @@ object TrypBuildKeys
   val paradiseJar = settingKey[Option[File]](
     "location of the macro paradise jar") in TrypC
   val generateLogback = Def.settingKey[Boolean](
-    "automatically generate logback.xml") in TrypC
+    s"automatically generate $logbackName") in TrypC
   val logbackTokens = Def.settingKey[Tokens](
-    "additional replacement tokens for logback.xml") in TrypC
+    s"additional replacement tokens for $logbackName") in TrypC
   val logbackTemplate = Def.settingKey[File](
-    "location of the template for logback.xml generation") in TrypC
+    s"location of the template for $logbackName generation") in TrypC
   val logbackOutput = Def.settingKey[File](
-    "location of the generated logback.xml") in TrypC
+    s"location of the generated $logbackName") in TrypC
 }
 import TrypBuildKeys._
 
@@ -50,8 +50,8 @@ with Tryplug
   override def projectSettings =
     super.projectSettings ++ commonBasicSettings ++ Seq(
       generateLogback := false,
-      logbackTemplate := metaRes.value / "logback.xml",
-      logbackOutput := resourceManaged.value / "logback.xml",
+      logbackTemplate := metaRes.value / logbackName,
+      logbackOutput := resourceManaged.value / logbackName,
       logbackTokens := Map(),
       templates ++= {
         if (generateLogback.value) Seq(logbackTemplateData.value)

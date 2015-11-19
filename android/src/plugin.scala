@@ -116,7 +116,7 @@ extends AutoPlugin
       if (generateManifest.value) Seq(manifestTemplateData.value)
       else Seq()
     },
-    logbackOutput := projectLayout.value.assets / "logback.xml",
+    logbackOutput := projectLayout.value.assets / logbackName,
     symlinkLibs <<= symlinkLibsTask,
     scalacOptions += "-target:jvm-1.7",
     javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
