@@ -80,11 +80,15 @@ with ParamLensSyntax[AndroidParams, A]
     pro.settings(Multidex.deps)
   }
 
-  def apk(pkg: String) =
-    builder.apk(pro)(pkg)
-
   def release = {
-    proguard.settingsV(apkbuildDebug ~= { a ⇒ a(false); a })
+    proguard
+      .settingsV(
+        apkbuildDebug ~= { a ⇒ a(false); a },
+        dexMainClasses ++= {
+          val path = androidPackage.value.replace('.', '/')
+          Seq(s"$path/Application.class", s"$path/MainActivity.class")
+        }
+      )
   }
 
   def debug = {
@@ -154,8 +158,6 @@ extends ProjectBuilder[A]
 
   def adeps(pro: A): AndroidDeps
 
-  def apk(pro: A)(pkg: String): A
-
   def multidex(pro: A)(main: List[String]): A
 
   def aparamLens: monocle.Lens[A, AndroidParams]
@@ -196,13 +198,6 @@ with ToTransformIf
   def adeps(pro: P) = pro.basic.deps
 
   def refs(pro: P) = deps(pro).refs(pro.name) ++ pro.params.deps
-
-  def apk(pro: P)(pkg: String) = {
-    val path = pkg.replace('.', '/')
-    pro
-      .proguard
-      .multidex(s"$path/Application.class", s"$path/MainActivity.class")
-  }
 
   def multidex(pro: P)(main: List[String]) = {
     pro.multidexDeps.multidex(main: _*)
