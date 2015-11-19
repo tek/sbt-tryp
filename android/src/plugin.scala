@@ -62,9 +62,16 @@ object TrypAndroidTasks
     IO.delete(dir)
     IO.createDirectory(dir)
     targets.map { case (path, name) ⇒
-      val link = dir / name
-      Files.createSymbolicLink(link.toPath, path.toPath)
-      link
+      val aarDir = dir / name
+      val maniDir =
+        if ((path / "target" / manifestName).exists) path / "target"
+        else path
+      IO.createDirectory(aarDir)
+      IO.createDirectory(maniDir)
+      Files.createSymbolicLink((aarDir / "res").toPath, (path / "res").toPath)
+      Files.createSymbolicLink((aarDir / manifestName).toPath,
+        (maniDir / manifestName).toPath)
+      aarDir
     }
   }
 }
