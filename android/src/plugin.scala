@@ -48,6 +48,15 @@ import TrypAndroidSettings._
 
 object TrypAndroidTasks
 {
+  // workaround for robolectric and robotest
+  // robolectric can include resources of deps only if their paths are added
+  // to project.properties or manually during execution.
+  // robotest has a machanism for that, but it just reads the aars dir of the
+  // test project, which doesn't respect sbt deps and transitive aars.
+  // this task symlinks any aar and sbt dependency in the whole dep graph
+  // to the aars dir.
+  // as manifest paths can vary, not just the bas dir gets linked, but the res
+  // and manifest paths individually.
   val symlinkLibsTask = Def.task {
     implicit val struct = buildStructure.value
     val dir = aarsDir.value
