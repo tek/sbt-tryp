@@ -60,12 +60,11 @@ object TrypAndroidTasks
   val symlinkLibsTask = Def.task {
     implicit val struct = buildStructure.value
     val dir = aarsDir.value
-    val projects = thisProjectRef.value
+    val sbtDeps = thisProjectRef.value
       .deepDeps
-      .map(r ⇒ sbt.Project.getProject(r, struct))
-      .flatten
-      .map(pro ⇒ (pro.base, pro.id))
-    val targets = (aars.value.map(a ⇒ (a.path, a.path.getName)) ++ projects)
+      .flatMap(r ⇒ sbt.Project.getProject(r, struct))
+      .map(pro ⇒ (pro.base, s"${pro.base.getParentFile.getName}-${pro.id}"))
+    val targets = (aars.value.map(a ⇒ (a.path, a.path.getName)) ++ sbtDeps)
       .filter { case (d, n) ⇒ (d / "res").exists }
       .distinct
     IO.delete(dir)
