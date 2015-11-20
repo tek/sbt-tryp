@@ -8,11 +8,12 @@ import Keys._
 object TemplatesKeys
 {
   type Tokens = Map[String, String]
+  type Template = ((File, File), Tokens)
 
   import TrypKeys.Tryp
 
   lazy val templates =
-    settingKey[Seq[((File, File), Tokens)]]("template files") in Tryp
+    settingKey[Seq[Template]]("template files") in Tryp
 
   lazy val keyFormatter =
     settingKey[String ⇒ String]("map keys to placeholders") in Tryp
@@ -53,20 +54,27 @@ extends AutoPlugin
 
   def templatesTask = Def.task {
     val cacheDir = streams.value.cacheDirectory / cacheName
-    val grouped = templates.value
+    val bySource = templates.value
       .map(_._1._1)
       .zip(templates.value)
       .toMap
-    val update: (ChangeReport[File], ChangeReport[File]) ⇒ Set[File] =
-      (sources, outputs) ⇒ {
-        sources.modified flatMap { f ⇒
-          grouped.get(f) map { case ((source, target), values) ⇒
-            streams.value.log.info(s"generating $target")
-            template(source, target, values, keyFormatter.value)
-          }
-        }
+    val byOutput = templates.value
+      .map(_._1._2)
+      .zip(templates.value)
+      .toMap
+    def generate(tpl: Template) = {
+      val ((source, target), values) = tpl
+      streams.value.log.info(s"generating $target")
+      template(source, target, values, keyFormatter.value)
     }
-    cacher(cacheDir)(update)(grouped.keys.toSet).toSeq
+    val update: (ChangeReport[File], ChangeReport[File]) ⇒ Set[File] =
+      (src, out) ⇒ {
+        val candidates = src.modified.flatMap(bySource.get) ++
+          out.modified.flatMap(byOutput.get)
+        candidates map(generate)
+
+    }
+    cacher(cacheDir)(update)(bySource.keys.toSet).toSeq
   }
 
   override lazy val projectSettings = Seq(
