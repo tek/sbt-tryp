@@ -21,7 +21,11 @@ with ProjectInstances
     title map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
   }
 
-  def tdp(name: String) = pb(name).antSrc.paradise().settingsV(prefixedName)
+  def tdp(name: String) =
+    pb(name)
+      .antSrc
+      .paradise()
+      .settingsV(prefixedName)
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
