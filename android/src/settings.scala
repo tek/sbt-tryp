@@ -52,7 +52,8 @@ object Tests {
       "-noverify",
       s"-Dandroid.manifest=${manifestOutput.value}",
       s"-Dandroid.resources=${projectLayout.value.res}",
-      s"-Dandroid.assets=${projectLayout.value.assets}"
+      s"-Dandroid.assets=${projectLayout.value.assets}",
+      "-Drobolectric.logging=stdout"
     )
   )
 }
