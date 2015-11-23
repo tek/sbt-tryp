@@ -50,13 +50,15 @@ with ProjectInstances
             scala.reflect.runtime.universe
           import universe._
         """
-        val sz = """
-          import scalaz._
-          import Scalaz._
-        """
-        if(paradiseJar.value.isDefined) uni + sz else sz
+        if(paradiseJar.value.isDefined) uni + consoleImports
+        else consoleImports
       }
     )
+
+  def consoleImports = """
+  import scalaz._
+  import Scalaz._
+  """
 
   override def rootProject = Some(macroConsole.!)
 }
