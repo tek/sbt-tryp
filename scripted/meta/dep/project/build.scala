@@ -16,7 +16,7 @@ extends tryp.AndroidDeps
 }
 
 object B
-extends tryp.AndroidBuild(deps = Deps)
+extends tryp.AndroidBuild("dep", deps = Deps)
 {
   val depcore = aar("depcore")
 }

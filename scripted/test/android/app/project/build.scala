@@ -1,6 +1,8 @@
 import sbt._
 import sbt.Keys._
 
+import tryp.TrypAndroid.autoImport._
+
 object Deps
 extends tryp.AndroidDeps
 {
@@ -23,9 +25,19 @@ extends tryp.Proguard
 }
 
 object B
-extends tryp.AndroidBuild(deps = Deps, proguard = Proguard)
+extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
 {
   lazy val core = aar("core")
 
-  lazy val pkg = adp("pkg").apk("org.test.app") <<< core
+  lazy val pkg = ("pkg" <<< core)
+    .release
+    .manifest(
+      "minSdk" → "21",
+      "targetSdk" → "23",
+      "activityClass" → ".MainActivity"
+    )
+    .settingsV(
+      aarModule := "app",
+      manifestTokens += ("package" → androidPackage.value)
+    )
 }
