@@ -107,10 +107,20 @@ extends TrypBuild
     lazy val basic = new StringToBuilder[Project[Deps]] {
       def create(name: String) = tdp(name)
     }
+
+    lazy val lib = new StringToBuilder[Project[Deps]] {
+      def create(name: String) = tdp(name).export
+    }
   }
 
   def defaultBuilder: StringToBuilder[Project[Deps]] = DefaultBuilder.basic
 
   implicit def stringToBuilder(name: String) =
     ToProjectOps(defaultBuilder.create(name))
+}
+
+class LibsBuild(t: String, deps: Deps = DefaultDeps)
+extends MultiBuild(t, deps)
+{
+  override def defaultBuilder = DefaultBuilder.lib
 }
