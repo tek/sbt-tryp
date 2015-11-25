@@ -5,6 +5,11 @@ import Keys._
 
 object DefaultDeps extends Deps
 
+abstract class StringToBuilder[A: ProjectBuilder]
+{
+  def create(name: String): A
+}
+
 trait MultiBuildBase
 extends sbt.Build
 with Tryplug
@@ -92,5 +97,20 @@ extends ExtMultiBuild
   override def settings = super.settings ++ trypSettings
 }
 
-class MultiBuild(override val deps: Deps = DefaultDeps)
+class MultiBuild(t: String, override val deps: Deps = DefaultDeps)
 extends TrypBuild
+{
+  override val title = Some(t)
+
+  object DefaultBuilder
+  {
+    lazy val basic = new StringToBuilder[Project[Deps]] {
+      def create(name: String) = tdp(name)
+    }
+  }
+
+  def defaultBuilder: StringToBuilder[Project[Deps]] = DefaultBuilder.basic
+
+  implicit def stringToBuilder(name: String) =
+    ToProjectOps(defaultBuilder.create(name))
+}

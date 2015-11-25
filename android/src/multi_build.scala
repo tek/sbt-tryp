@@ -9,16 +9,11 @@ import TrypAndroidKeys._
 object DefaultDeps extends AndroidDeps
 object DefaultProguard extends Proguard
 
-abstract class StringToBuilder[A: AndroidProjectBuilder]
-{
-  def create(name: String): A
-}
-
 trait AndroidBuildBase
 extends ExtMultiBuild
 with ToAndroidProjectOps
 with AndroidProjectInstances
-{ build ⇒
+{
   override val deps: AndroidDeps = DefaultDeps
 
   val proguard: Proguard
@@ -83,40 +78,40 @@ with AndroidProjectInstances
     apb(name).antSrc.paradise().settingsV(prefixedName).export
 
   def aar(name: String) = adp(name).aar
-
-  object DefaultBuilder
-  {
-    lazy val aar = new StringToBuilder {
-      def create(name: String) = build.aar(name)
-    }
-
-    lazy val basic = new StringToBuilder {
-      def create(name: String) = build.adp(name)
-    }
-  }
-
-  def defaultBuilder: StringToBuilder[AndroidProject] = DefaultBuilder.basic
-
-  implicit def stringToBuilder(name: String) =
-    ToProjectOps(defaultBuilder.create(name))
-
-  implicit def stringToAndroidBuilder(name: String) =
-    ToAndroidProjectOps(defaultBuilder.create(name))
 }
 
-abstract class AndroidBuild(
+class AndroidBuild(
+  t: String,
   override val deps: AndroidDeps = DefaultDeps,
   val proguard: Proguard = DefaultProguard
 )
 extends TrypBuild
 with AndroidBuildBase
 with ToAndroidProjectOps
-with AndroidProjectInstances
+with AndroidProjectInstances { build ⇒
+  override val title = Some(t)
+
+  object DefaultBuilder
+  {
+    lazy val aar = new StringToBuilder[AndroidProject] {
+      def create(name: String) = build.aar(name)
+    }
+
+    lazy val basic = new StringToBuilder[AndroidProject] {
+      def create(name: String) = build.adp(name)
+    }
+  }
+
+  def defaultBuilder: StringToBuilder[AndroidProject] =
+    DefaultBuilder.basic
+
+  implicit def stringToBuilder(name: String) =
+    ToAndroidProjectOps(defaultBuilder.create(name))
+}
 
 class AarsBuild(t: String, deps: AndroidDeps = DefaultDeps,
   proguard: Proguard = DefaultProguard)
-extends AndroidBuild(deps, proguard)
+extends AndroidBuild(t, deps, proguard)
 {
-  override val title = Some(t)
   override def defaultBuilder = DefaultBuilder.aar
 }
