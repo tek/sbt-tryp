@@ -177,7 +177,6 @@ extends ToAndroidProjectOps
 
 class AndroidBuilder
 extends AndroidProjectBuilder[AndroidProject]
-with ToProjectOps
 with ToAndroidProjectOps
 with ToTransformIf
 {

@@ -11,6 +11,7 @@ object DefaultProguard extends Proguard
 
 trait AndroidBuildBase
 extends ExtMultiBuild
+with ToProjectOps
 with ToAndroidProjectOps
 with AndroidProjectInstances
 {
@@ -106,6 +107,9 @@ with AndroidProjectInstances { build ⇒
     DefaultBuilder.basic
 
   implicit def stringToBuilder(name: String) =
+    ToProjectOps(defaultBuilder.create(name))
+
+  implicit def stringToAndroidBuilder(name: String) =
     ToAndroidProjectOps(defaultBuilder.create(name))
 }
 
