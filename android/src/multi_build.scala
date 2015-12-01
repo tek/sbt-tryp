@@ -89,33 +89,22 @@ class AndroidBuild(
 extends TrypBuild
 with AndroidBuildBase
 with ToAndroidProjectOps
-with AndroidProjectInstances { build ⇒
+with AndroidProjectInstances
+{
   override val title = Some(t)
 
-  object DefaultBuilder
-  {
-    lazy val aar = new StringToBuilder[AndroidProject] {
-      def create(name: String) = build.aar(name)
-    }
-
-    lazy val basic = new StringToBuilder[AndroidProject] {
-      def create(name: String) = build.adp(name)
-    }
-  }
-
-  def defaultBuilder: StringToBuilder[AndroidProject] =
-    DefaultBuilder.basic
+  def defaultBuilder = adp _
 
   implicit def stringToBuilder(name: String) =
-    ToProjectOps(defaultBuilder.create(name))
+    ToProjectOps(defaultBuilder(name))
 
   implicit def stringToAndroidBuilder(name: String) =
-    ToAndroidProjectOps(defaultBuilder.create(name))
+    ToAndroidProjectOps(defaultBuilder(name))
 }
 
 class AarsBuild(t: String, deps: AndroidDeps = DefaultDeps,
   proguard: Proguard = DefaultProguard)
 extends AndroidBuild(t, deps, proguard)
 {
-  override def defaultBuilder = DefaultBuilder.aar
+  override def defaultBuilder = aar _
 }
