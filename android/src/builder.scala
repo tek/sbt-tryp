@@ -101,6 +101,8 @@ with ParamLensSyntax[AndroidParams, A]
     AP.deps ++! projects.toList
   }
 
+  def aarModuleSetting = aarModule := pro.name.replace('-', '.')
+
   def reifyManifestSettings = {
     aparams.manifest.write ??
       List(generateManifest := true,
@@ -124,6 +126,7 @@ with ParamLensSyntax[AndroidParams, A]
   def reifyAccSettings = {
     pro
       .transformIf(aparams.aar)(_.settings(Aar.settings))
+      .settings(aarModuleSetting)
       .settings(reifyManifestSettings)
       .settings(reifyMultidexSettings)
       .settingsV(reifyPackagingOptions)

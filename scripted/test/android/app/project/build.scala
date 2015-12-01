@@ -29,7 +29,8 @@ extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
 {
   lazy val core = aar("core")
 
-  lazy val pkg = ("pkg" <<< core)
+  lazy val pkg = ("app-pkg" <<< core)
+    .path("pkg")
     .release
     .manifest(
       "minSdk" → "21",
@@ -37,7 +38,6 @@ extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
       "activityClass" → ".MainActivity"
     )
     .settingsV(
-      aarModule := "app",
       manifestTokens += ("package" → androidPackage.value)
     )
 }
