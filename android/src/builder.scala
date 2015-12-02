@@ -126,7 +126,7 @@ with ParamLensSyntax[AndroidParams, A]
   def reifyAccSettings = {
     pro
       .transformIf(aparams.aar)(_.settings(Aar.settings))
-      .settings(aarModuleSetting)
+      .settingsVPre(aarModuleSetting)
       .settings(reifyManifestSettings)
       .settings(reifyMultidexSettings)
       .settingsV(reifyPackagingOptions)
