@@ -72,7 +72,7 @@ with Tryplug
   val wantDevdeps = false
 
   object TrypDeps
-  extends Deps
+  extends PluginDeps
   {
     override def deps = super.deps ++ Map(
       "core" → core,
