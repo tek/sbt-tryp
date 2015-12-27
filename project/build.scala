@@ -92,9 +92,9 @@ with Tryplug
     )
 
     val android = ids(
-      pd(huy, sdkName, sdkVersion, "pfn", s"pfn/$sdkName"),
-      pd(huy, "android-protify", protifyVersion, "pfn", "pfn/protify",
-        "plugin")
+      pd(huy, sdkName, sdkVersion, "pfn", "sbt-plugins", s"pfn/$sdkName"),
+      pd(huy, "android-protify", protifyVersion, "pfn", "sbt-plugins",
+        "pfn/protify", "plugin")
     )
 
     val root = ids(

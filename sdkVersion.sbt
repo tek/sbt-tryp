@@ -1,1 +1,1 @@
-sdkVersion in Global := "1.5.9"
+sdkVersion in Global := "1.5.11"
