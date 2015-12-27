@@ -84,7 +84,7 @@ with Tryplug
     val sdkName = "android-sdk-plugin"
 
     val tryplug = pd("tryp.sbt", "tryplug", tryplugVersion, "tek",
-      "tek/tryplug", "tryplug", "macros")
+      "sbt-plugins", "tek/tryplug", "tryplug", "macros")
 
     val core = ids(
       tryplug,
