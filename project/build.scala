@@ -83,8 +83,8 @@ with Tryplug
     val huy = "com.hanhuy.sbt"
     val sdkName = "android-sdk-plugin"
 
-    val tryplug = pd("tryp.sbt", "tryplug", tryplugVersion, "tek",
-      "sbt-plugins", "tek/tryplug", "tryplug", "macros")
+    val tryplug = plugin("tryp.sbt", "tryplug", tryplugVersion, "tek/tryplug",
+      List("tryplug", "macros")).bintray("tek")
 
     val core = ids(
       tryplug,
@@ -92,9 +92,11 @@ with Tryplug
     )
 
     val android = ids(
-      pd(huy, sdkName, sdkVersion, "pfn", "sbt-plugins", s"pfn/$sdkName"),
-      pd(huy, "android-protify", protifyVersion, "pfn", "sbt-plugins",
-        "pfn/protify", "plugin")
+      plugin(huy, sdkName, sdkVersion, s"pfn/$sdkName")
+        .bintray("pfn"),
+      plugin(huy, "android-protify", protifyVersion, "pfn/protify",
+        List("plugin"))
+          .bintray("pfn")
     )
 
     val root = ids(
