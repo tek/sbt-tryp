@@ -38,8 +38,7 @@ with Tryplug
     .settings(common: _*)
     .dependsOn(core)
 
-  lazy val root = pluginSubProject("root")
-    .in(file("."))
+  lazy val root = pluginProject("root")
     .settings(
       publish := (),
       publishLocal := (),
