@@ -79,28 +79,14 @@ with Tryplug
       "root" → root
     )
 
-    val huy = "com.hanhuy.sbt"
-    val sdkName = "android-sdk-plugin"
-
-    val tryplug = plugin("tryp.sbt", "tryplug", tryplugVersion, "tek/tryplug",
-      List("tryplug", "macros")).bintray("tek")
-
     val core = ids(
       tryplug,
       "com.github.julien-truffaut" %% "monocle-macro" % "+"
     )
 
-    val android = ids(
-      plugin(huy, sdkName, sdkVersion, s"pfn/$sdkName")
-        .bintray("pfn"),
-      plugin(huy, "android-protify", protifyVersion, "pfn/protify",
-        List("plugin"))
-          .bintray("pfn")
-    )
+    val android = ids(androidSdk, protify)
 
-    val root = ids(
-      tryplug
-    )
+    val root = ids(tryplug)
   }
 
   override def deps = TrypDeps
