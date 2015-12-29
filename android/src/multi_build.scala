@@ -3,6 +3,7 @@ package tryp
 import sbt._
 import sbt.Keys._
 import android.Keys._
+import android.protify.Keys.Protify
 
 import TrypAndroidKeys._
 
@@ -49,7 +50,10 @@ with AndroidProjectInstances
 
   lazy val proguardInDebugSetting = useProguardInDebug := false
 
-  lazy val updateCheckSetting = updateCheck := {}
+  lazy val updateCheckSettings = Seq(
+    updateCheck := (),
+    updateCheck in Protify := ()
+  )
 
   lazy val manifestDep =
     manifest <<= manifest dependsOn TemplatesKeys.templateResources
@@ -67,10 +71,9 @@ with AndroidProjectInstances
     lintSetting,
     debugIncludesTestsSetting,
     proguardInDebugSetting,
-    updateCheckSetting,
     manifestDep,
     manifestResourceFilter
-  )
+  ) ++ updateCheckSettings
 
   def apb(name: String) =
     AndroidProject(name, deps, proguard, androidDefaults, platform)
