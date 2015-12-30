@@ -1,1 +1,1 @@
-tryplugVersion in Global := "44"
+tryplugVersion in Global := "47"
