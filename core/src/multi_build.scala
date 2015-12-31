@@ -84,12 +84,21 @@ extends MultiBuildBase
       state
     }
   }
+
+  val selfId = "tryp-build"
+
+  def selfUpdater = Seq(
+    update <<= update dependsOn(
+      projectUpdater("tek", "sbt-plugins", "tryp.sbt", selfId,
+        TrypKeys.trypVersion)
+      )
+  )
 }
 
 trait TrypBuild
 extends ExtMultiBuild
 {
-  override def settings = super.settings ++ trypSettings
+  override def settings = super.settings ++ trypSettings ++ selfUpdater
 }
 
 class MultiBuild(t: String, override val deps: Deps = DefaultDeps)

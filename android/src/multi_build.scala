@@ -103,6 +103,8 @@ with AndroidProjectInstances
 
   implicit def stringToAndroidBuilder(name: String) =
     ToAndroidProjectOps(defaultBuilder(name))
+
+  override val selfId = "tryp-android"
 }
 
 class AarsBuild(t: String, deps: AndroidDeps = DefaultDeps,
