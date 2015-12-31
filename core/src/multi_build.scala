@@ -90,7 +90,7 @@ extends MultiBuildBase
   def selfUpdater = Seq(
     update <<= update dependsOn(
       projectUpdater("tek", "sbt-plugins", "tryp.sbt", selfId,
-        TrypKeys.trypVersion)
+        TrypKeys.trypVersion, prefix = "P.")
       )
   )
 }
