@@ -36,6 +36,16 @@ object TrypLogbackSettings
 }
 import TrypLogbackSettings._
 
+object TrypKeysPlugin
+extends AutoPlugin
+with Tryplug
+{
+  override def requires = Templates
+  override def trigger = allRequirements
+
+  val autoImport = TrypBuildKeys
+}
+
 object Tryp
 extends AutoPlugin
 with Tryplug
@@ -44,8 +54,19 @@ with Tryplug
   override def trigger = allRequirements
 
   import Templates.autoImport._
+  import TrypBuildKeys._
+  import TrypKeys._
 
-  val autoImport = TrypBuildKeys
+  val projectBuildName = "project_build"
+
+  object autoImport
+  {
+    def trypProjectBuild =
+      pluginProject(projectBuildName)
+        .settings(
+          trypVersion <<= trypVersion ?? "82-SNAPSHOT"
+        )
+  }
 
   override def projectSettings =
     super.projectSettings ++ commonBasicSettings ++ Seq(
@@ -66,4 +87,14 @@ with Tryplug
       },
       addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
     )
+
+  override object deps
+  extends PluginDeps
+  {
+    override def deps = super.deps ++ Map(
+      projectBuildName → projectBuildDeps
+    )
+
+    def projectBuildDeps = ids(tryp)
+  }
 }

@@ -91,7 +91,7 @@ extends AutoPlugin
   override def requires = Templates && AndroidPlugin && Tryp
 
   import Templates.autoImport._
-  import Tryp.autoImport._
+  import TrypBuildKeys._
 
   val autoImport = TrypAndroidKeys
 

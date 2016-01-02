@@ -11,7 +11,7 @@ with Tryplug
 with ToProjectOps
 with ProjectInstances
 {
-  import Tryp.autoImport._
+  import TrypBuildKeys._
 
   def pb(name: String) = Project(name, deps)
 
@@ -84,21 +84,12 @@ extends MultiBuildBase
       state
     }
   }
-
-  val selfId = "tryp-build"
-
-  def selfUpdater = Seq(
-    update <<= update dependsOn(
-      projectUpdater("tek", "sbt-plugins", "tryp.sbt", selfId,
-        TrypKeys.trypVersion, prefix = "P.")
-      )
-  )
 }
 
 trait TrypBuild
 extends ExtMultiBuild
 {
-  override def settings = super.settings ++ trypSettings ++ selfUpdater
+  override def settings = super.settings ++ trypSettings
 }
 
 class MultiBuild(t: String, override val deps: Deps = DefaultDeps)
