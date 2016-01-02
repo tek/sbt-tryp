@@ -19,6 +19,7 @@ object TrypBuildKeys
     s"location of the template for $logbackName generation") in TrypC
   val logbackOutput = Def.settingKey[File](
     s"location of the generated $logbackName") in TrypC
+  val tryplugVersion = settingKey[String]("tryplug version") in TrypC
 }
 import TrypBuildKeys._
 
@@ -55,16 +56,16 @@ with Tryplug
 
   import Templates.autoImport._
   import TrypBuildKeys._
-  import TrypKeys._
-
-  val projectBuildName = "project_build"
 
   object autoImport
   {
+    def trypVersion = TrypKeys.trypVersion
+
     def trypProjectBuild =
-      pluginProject(projectBuildName)
+      projectBuild
         .settings(
-          trypVersion <<= trypVersion ?? "82-SNAPSHOT"
+          VersionUpdateKeys.updateAllPlugins := true,
+          trypVersion <<= trypVersion ?? "83"
         )
   }
 
@@ -95,6 +96,6 @@ with Tryplug
       projectBuildName → projectBuildDeps
     )
 
-    def projectBuildDeps = ids(tryp)
+    def projectBuildDeps = ids(trypBuild)
   }
 }
