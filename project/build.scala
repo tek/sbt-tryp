@@ -39,17 +39,6 @@ with Tryplug
     .dependsOn(core)
 
   lazy val root = pluginProject("root")
-    .settings(
-      publish := (),
-      publishLocal := (),
-      versionUpdater := {
-        new Versions {
-          def projectDir =
-            Option(VersionUpdateKeys.projectDir.value / "project")
-          override def handlePrefix = "P."
-        }
-      }
-    )
     .aggregate(core, android)
 
   lazy val scripted = (project in file("scripted"))
