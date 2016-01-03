@@ -95,10 +95,6 @@ extends AutoPlugin
 
   val autoImport = TrypAndroidKeys
 
-  override def buildSettings = super.buildSettings ++ Seq(
-    appName := "appName"
-  )
-
   override lazy val projectSettings = super.projectSettings ++ Seq(
     aarModule := name.value,
     androidPackage :=

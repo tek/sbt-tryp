@@ -23,7 +23,7 @@ with AndroidProjectInstances
   val platform = "android-21"
 
   override def settings = super.settings ++ Seq(
-    appName := title getOrElse(appName.value)
+    appName := title getOrElse((appName ?? "app_name").value)
   )
 
   lazy val warningSetting = transitiveAndroidWarning := false
