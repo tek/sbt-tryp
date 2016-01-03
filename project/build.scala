@@ -14,6 +14,8 @@ with Tryplug
 {
   override def settings = super.settings ++ pluginVersionDefaults
 
+  def tryplugVersion = TrypKeys.tryplugVersion
+
   lazy val common = List(
     libraryDependencies +=
       "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary,
