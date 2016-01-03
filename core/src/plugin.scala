@@ -57,18 +57,6 @@ with Tryplug
   import Templates.autoImport._
   import TrypBuildKeys._
 
-  object autoImport
-  {
-    def trypVersion = TrypKeys.trypVersion
-
-    def trypProjectBuild =
-      projectBuild
-        .settings(
-          VersionUpdateKeys.updateAllPlugins := true,
-          trypVersion <<= trypVersion ?? "83"
-        )
-  }
-
   override def projectSettings =
     super.projectSettings ++ commonBasicSettings ++ Seq(
       generateLogback := false,
@@ -88,6 +76,32 @@ with Tryplug
       },
       addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
     )
+}
+
+class TrypPlugin
+extends AutoPlugin
+with Tryplug
+{
+  trait AutoImport
+  {
+    def mkTrypProjectBuild =
+      projectBuild
+        .settings(
+          VersionUpdateKeys.updateAllPlugins := true,
+          TrypKeys.trypVersion <<= TrypKeys.trypVersion ?? "83"
+        )
+  }
+}
+
+object TrypBuildPlugin
+extends TrypPlugin
+{
+  object autoImport
+  extends AutoImport
+  {
+    def trypVersion = TrypKeys.trypVersion
+    def trypProjectBuild = mkTrypProjectBuild
+  }
 
   override object deps
   extends PluginDeps

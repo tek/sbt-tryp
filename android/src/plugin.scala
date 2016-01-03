@@ -117,3 +117,23 @@ extends AutoPlugin
     javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
   )
 }
+
+object TrypAndroidBuildPlugin
+extends TrypPlugin
+{
+  object autoImport
+  extends AutoImport
+  {
+    def trypAndroidProjectBuild = mkTrypProjectBuild
+  }
+
+  override object deps
+  extends PluginDeps
+  {
+    override def deps = super.deps ++ Map(
+      projectBuildName → projectBuildDeps
+    )
+
+    def projectBuildDeps = ids(tryp)
+  }
+}
