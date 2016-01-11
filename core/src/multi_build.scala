@@ -49,6 +49,9 @@ with ProjectInstances
           val universe: scala.reflect.runtime.universe.type =
             scala.reflect.runtime.universe
           import universe._
+          import scala.tools.reflect.ToolBox
+          import scala.reflect.runtime.currentMirror
+          val tb = currentMirror.mkToolBox()
         """
         if(paradiseJar.value.isDefined) uni + consoleImports
         else consoleImports
