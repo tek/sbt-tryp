@@ -1,1 +1,1 @@
-tryplugVersion in Global := "60-SNAPSHOT"
+tryplugVersion in Global := "60"
