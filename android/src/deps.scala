@@ -44,12 +44,6 @@ object AndroidDeps
 trait AndroidDeps
 extends Deps
 {
-  override def resolvers = Map(
-    "unit" → List(
-      Resolver.bintrayRepo("tek", "releases")
-    )
-  )
-
   override def unit = super.unit ++ ids(
     "tryp" %% "speclectic" % "+"
   )
