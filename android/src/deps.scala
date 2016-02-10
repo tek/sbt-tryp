@@ -52,7 +52,7 @@ extends Deps
   )
 
   override def unit = super.unit ++ ids(
-    "com.geteit" %% "robotest" % "+"
+    "tryp" %% "speclectic" % "+"
   )
 
   def integration = ids(
