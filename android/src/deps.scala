@@ -46,8 +46,7 @@ extends Deps
 {
   override def resolvers = Map(
     "unit" → List(
-    "RoboTest releases" at
-      "https://github.com/zbsz/mvn-repo/raw/master/releases/"
+      Resolver.bintrayRepo("tek", "releases")
     )
   )
 
