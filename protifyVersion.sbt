@@ -1,1 +1,1 @@
-protifyVersion in Global := "1.1.13"
+protifyVersion in Global := "1.2.0"
