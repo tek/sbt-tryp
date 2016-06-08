@@ -119,21 +119,12 @@ extends AutoPlugin
 }
 
 object TrypAndroidBuildPlugin
-extends TrypPlugin
+extends TrypBuildBuild
 {
   object autoImport
-  extends AutoImport
   {
     def trypAndroidProjectBuild = mkTrypProjectBuild
   }
 
-  override object deps
-  extends PluginDeps
-  {
-    override def deps = super.deps ++ Map(
-      projectBuildName → projectBuildDeps
-    )
-
-    def projectBuildDeps = ids(tryp)
-  }
+  override def projectBuildDeps = deps.ids(deps.tryp)
 }

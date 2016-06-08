@@ -78,38 +78,38 @@ with Tryplug
     )
 }
 
-class TrypPlugin
-extends AutoPlugin
-with Tryplug
+trait TrypBuildBuild
+extends Tryplug
 {
-  trait AutoImport
-  {
-    def mkTrypProjectBuild =
-      projectBuild
-        .settings(
-          VersionUpdateKeys.updateAllPlugins := true,
-          TrypKeys.trypVersion <<= TrypKeys.trypVersion ?? "83"
-        )
-  }
-}
+  def mkTrypProjectBuild =
+    projectBuild
+      .settings(
+        VersionUpdateKeys.updateAllPlugins := true,
+        TrypKeys.trypVersion <<= TrypKeys.trypVersion ?? "83"
+      )
 
-object TrypBuildPlugin
-extends TrypPlugin
-{
-  object autoImport
-  extends AutoImport
-  {
-    def trypVersion = TrypKeys.trypVersion
-    def trypProjectBuild = mkTrypProjectBuild
-  }
-
-  override object deps
+  trait TrypBuildBuildDeps
   extends PluginDeps
   {
     override def deps = super.deps ++ Map(
       projectBuildName → projectBuildDeps
     )
+  }
 
-    def projectBuildDeps = ids(trypBuild)
+  override lazy val deps = new TrypBuildBuildDeps {}
+
+  def projectBuildDeps = deps.ids(deps.trypBuild)
+
+  lazy val `project` = mkTrypProjectBuild
+}
+
+object TrypBuildPlugin
+extends AutoPlugin
+with TrypBuildBuild
+{
+  object autoImport
+  {
+    def trypVersion = TrypKeys.trypVersion
+    def trypProjectBuild = mkTrypProjectBuild
   }
 }
