@@ -55,7 +55,7 @@ extends Deps
   def ad(id: ModuleID, path: String, sub: String*) = macro AndroidDeps.adImpl
 
   def aRefs(name: String) = {
-    (common ++ deps.fetch(name)).flatMap {
+    allDeps.fetch(name).flatMap {
       case id: AndroidTrypId ⇒ id.aRefs
       case _ ⇒ List()
     }
