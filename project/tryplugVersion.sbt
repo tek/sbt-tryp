@@ -1,1 +1,1 @@
-P.tryplugVersion in Global := "67"
+P.tryplugVersion in Global := "72.0.0"

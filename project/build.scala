@@ -72,7 +72,7 @@ with Tryplug
 
     val core = ids(
       tryplug,
-      "com.github.julien-truffaut" %% "monocle-macro" % "1.2.0"
+      "com.github.julien-truffaut" %% "monocle-macro" % "1.1.1"
     )
 
     val android = ids(androidSdk, protify)
