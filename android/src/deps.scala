@@ -8,8 +8,9 @@ import Keys._
 import Types._
 
 class AndroidTrypId(id: ModuleID, depspec: DepSpec, path: String,
-  sub: List[String], dev: Boolean)
-extends TrypId(id, depspec, path, sub, dev)
+  sub: List[String], dev: Boolean, hook: DepCond,
+  cond: Option[SettingKey[Boolean]])
+extends TrypId(id, depspec, path, sub, dev, hook, cond)
 {
   def aRefs = {
     if (development) super.projects
@@ -22,7 +23,8 @@ extends TrypId(id, depspec, path, sub, dev)
     s"aar ${super.info}"
   }
 
-  override def no = new AndroidTrypId(id, depspec, path, sub, false)
+  override def no = 
+    new AndroidTrypId(id, depspec, path, sub, false, hook, cond)
 }
 
 object AndroidDeps
@@ -34,7 +36,7 @@ object AndroidDeps
     c.Expr[AndroidTrypId] {
       q"""new tryp.AndroidTrypId(
         $id, libraryDependencies += android.Keys.aar($id), $path, List(..$sub),
-        true
+        true, identity, None
       )
       """
     }
@@ -65,7 +67,8 @@ extends Deps
 
   override implicit def moduleIDtoTrypId(id: ModuleID) = {
     if (id.isAar)
-      new AndroidTrypId(id, libraryDependencies += id, "", List(), false)
+      new AndroidTrypId(id, libraryDependencies += id, "", List(), false,
+        identity, None)
     else super.moduleIDtoTrypId(id)
   }
 }
