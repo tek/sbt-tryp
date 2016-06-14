@@ -46,6 +46,7 @@ with Tryplug
   lazy val scripted = (project in file("scripted"))
     .settings(scriptedSettings: _*)
     .settings(
+      resolvers += Resolver.typesafeIvyRepo("releases"),
       sbtTestDirectory := baseDirectory.value / "test",
       scriptedRun <<=
         scriptedRun dependsOn(publishLocal in core, publishLocal in android),
