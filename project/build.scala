@@ -40,7 +40,7 @@ with Tryplug
     .settings(common: _*)
     .dependsOn(core)
 
-  lazy val root = pluginProject("root")
+  lazy val root = pluginProject("tryp")
     .aggregate(core, android)
 
   lazy val scripted = (project in file("scripted"))
