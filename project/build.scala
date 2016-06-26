@@ -68,7 +68,7 @@ with Tryplug
     override def deps = super.deps ++ Map(
       "core" → core,
       "android" → android,
-      "root" → root
+      "tryp" → root
     )
 
     val core = ids(
