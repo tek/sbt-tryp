@@ -46,7 +46,7 @@ object AndroidDeps
 trait AndroidDeps
 extends Deps
 {
-  override def unit = super.unit ++ ids(
+  def unit = ids(
     "tryp" %% "speclectic" % "+"
   )
 
