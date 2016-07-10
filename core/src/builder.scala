@@ -199,6 +199,27 @@ with ParamLensSyntax[Params, A]
       List(generateLogback := true, logbackTokens ++= params.logback.tokens)
   }
 
+  def macroConsole =
+    settingsV(
+      scalacOptions ++= {
+        paradiseJar.value map(p ⇒ s"-Xplugin:$p") toSeq
+      },
+      initialCommands in sbt.Keys.console += {
+        val uni = """
+          val universe: scala.reflect.runtime.universe.type =
+            scala.reflect.runtime.universe
+          import universe._
+          import scala.tools.reflect.ToolBox
+          import scala.reflect.runtime.currentMirror
+          val tb = currentMirror.mkToolBox()
+        """
+        (if(paradiseJar.value.isDefined) uni else "")
+      }
+    )
+
+  def console(imports: String) =
+    settingsV(initialCommands in sbt.Keys.console += imports)
+
   def dep(pros: SbtDep*) = P.deps ++! pros.toList
 
   def refs = builder.refs(pro)

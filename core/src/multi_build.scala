@@ -17,6 +17,8 @@ with ProjectInstances
 
   val title: Option[String] = None
 
+  def consoleImports = ""
+
   lazy val prefixedName = name := {
     title map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
   }
@@ -26,6 +28,7 @@ with ProjectInstances
       .antSrc
       .paradise()
       .settingsV(prefixedName)
+      .console(consoleImports)
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
@@ -39,29 +42,9 @@ with ProjectInstances
 
   def mpb(name: String) = metaProject(name)
 
-  lazy val macroConsole = metaProject("macro-console")
-    .settingsV(
-      scalacOptions ++= {
-        paradiseJar.value map(p ⇒ s"-Xplugin:$p") toSeq
-      },
-      initialCommands in console := {
-        val uni = """
-          val universe: scala.reflect.runtime.universe.type =
-            scala.reflect.runtime.universe
-          import universe._
-          import scala.tools.reflect.ToolBox
-          import scala.reflect.runtime.currentMirror
-          val tb = currentMirror.mkToolBox()
-        """
-        if(paradiseJar.value.isDefined) uni + consoleImports
-        else consoleImports
-      }
-    )
-
-  def consoleImports = """
-  import scalaz._
-  import Scalaz._
-  """
+  lazy val macroConsole =
+    metaProject("macro-console")
+      .macroConsole
 
   override def rootProject = Some(macroConsole.!)
 }

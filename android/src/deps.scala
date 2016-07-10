@@ -23,7 +23,7 @@ extends TrypId(id, depspec, path, sub, dev, hook, cond)
     s"aar ${super.info}"
   }
 
-  override def no = 
+  override def no =
     new AndroidTrypId(id, depspec, path, sub, false, hook, cond)
 }
 
