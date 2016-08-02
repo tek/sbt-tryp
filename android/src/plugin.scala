@@ -119,7 +119,8 @@ extends AutoPlugin
 }
 
 object TrypAndroidBuildPlugin
-extends TrypBuildBuild
+extends AutoPlugin
+with TrypBuildBuild
 {
   object autoImport
   {
