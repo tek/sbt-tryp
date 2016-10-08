@@ -35,7 +35,8 @@ with Tryplug
   lazy val android = pluginSubProject("android")
     .settings(
       name := "tryp-android",
-      update <<= update dependsOn(updateVersions)
+      update <<= update dependsOn(updateVersions),
+      updateAllPlugins := true
     )
     .settings(common: _*)
     .dependsOn(core)
