@@ -88,7 +88,7 @@ import TrypAndroidTasks._
 object TrypAndroid
 extends AutoPlugin
 {
-  override def requires = Templates && AndroidPlugin && Tryp
+  override def requires = Templates && AndroidApp && Tryp
 
   import Templates.autoImport._
   import TrypBuildKeys._
