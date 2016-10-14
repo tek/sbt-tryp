@@ -47,7 +47,7 @@ trait AndroidDeps
 extends Deps
 {
   def unit = ids(
-    "tryp" %% "speclectic" % "+"
+    "tryp" %% "speclectic" % "1.0.0"
   )
 
   def integration = ids(
