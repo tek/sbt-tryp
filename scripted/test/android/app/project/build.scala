@@ -27,6 +27,8 @@ extends tryp.Proguard
 object B
 extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
 {
+  lazy val stuff = tdp("stuff").!
+
   lazy val core = aar("core")
 
   lazy val pkg = ("app-pkg" <<< core)
@@ -40,4 +42,5 @@ extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
     .settingsV(
       manifestTokens += ("package" → androidPackage.value)
     )
+    .map(_.dependsOn(stuff))
 }

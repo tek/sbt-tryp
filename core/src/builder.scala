@@ -34,12 +34,13 @@ case class TemplateParams(write: Boolean = false,
 
 @Lenses
 case class Params(settings: Setts, deps: List[SbtDep], name: String,
-  path: String, bintray: Boolean, logback: TemplateParams)
+  path: String, bintray: Boolean, logback: TemplateParams,
+  trans: List[sbt.Project => sbt.Project])
 
 object Params
 {
   def create(name: String, settings: Setts) = {
-    Params(settings, Nil, name, name, false, TemplateParams())
+    Params(settings, Nil, name, name, false, TemplateParams(), List())
   }
 }
 
@@ -194,6 +195,10 @@ with ParamLensSyntax[Params, A]
     (P.logback.tokens ++ tokens.toMap >>> P.logback.write.!)(pro)
   }
 
+  def map(cb: sbt.Project => sbt.Project) = {
+    P.trans ++ List(cb)
+  }
+
   def reifyLogbackSettings = {
     params.logback.write ??
       List(generateLogback := true, logbackTokens ++= params.logback.tokens)
@@ -236,8 +241,9 @@ with ParamLensSyntax[Params, A]
   }
 
   def configuredProject = {
-    basicProject
+    val p = basicProject
       .settings(libraryDeps ++ params.settings: _*)
+    params.trans.foldLeft(p)((a, b) => b(a))
   }
 
   def <<[B](pro: B)(implicit ts: ToSbt[B]) = dep(ts.reify(pro))
