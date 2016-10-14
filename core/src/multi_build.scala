@@ -45,6 +45,7 @@ with ProjectInstances
   lazy val macroConsole =
     metaProject("macro-console")
       .macroConsole
+      .settingsV(publish := ())
 
   override def rootProject = Some(macroConsole.!)
 }
