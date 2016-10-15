@@ -196,7 +196,7 @@ with ParamLensSyntax[Params, A]
   }
 
   def map(cb: sbt.Project => sbt.Project) = {
-    P.trans ++ List(cb)
+    P.trans ++! List(cb)
   }
 
   def reifyLogbackSettings = {

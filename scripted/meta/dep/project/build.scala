@@ -11,7 +11,7 @@ extends tryp.AndroidDeps
   )
 
   lazy val depcore = ids(
-    aar("com.android.support" % "appcompat-v7" % "21.+")
+    aar("com.android.support" % "appcompat-v7" % "23.+")
   )
 }
 

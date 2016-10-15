@@ -43,4 +43,5 @@ extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
       manifestTokens += ("package" → androidPackage.value)
     )
     .map(_.dependsOn(stuff))
+    .!
 }
