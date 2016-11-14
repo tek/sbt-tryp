@@ -12,13 +12,6 @@ class AndroidTrypId(id: ModuleID, depspec: DepSpec, path: String,
   cond: Option[SettingKey[Boolean]])
 extends TrypId(id, depspec, path, sub, dev, hook, cond)
 {
-  def aRefs = {
-    if (development) super.projects
-    else Nil
-  }
-
-  override def refs = Nil
-
   override def info = {
     s"aar ${super.info}"
   }
@@ -35,8 +28,8 @@ object AndroidDeps
     import c.universe._
     c.Expr[AndroidTrypId] {
       q"""new tryp.AndroidTrypId(
-        $id, libraryDependencies += android.Keys.aar($id), $path, List(..$sub),
-        true, identity, None
+        $id, libraryDependencies += $id, $path, List(..$sub), true, identity,
+        None
       )
       """
     }
@@ -55,13 +48,6 @@ extends Deps
   )
 
   def ad(id: ModuleID, path: String, sub: String*) = macro AndroidDeps.adImpl
-
-  def aRefs(name: String) = {
-    allDeps.fetch(name).flatMap {
-      case id: AndroidTrypId ⇒ id.aRefs
-      case _ ⇒ List()
-    }
-  }
 
   import ModuleID._
 

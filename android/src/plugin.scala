@@ -88,7 +88,7 @@ import TrypAndroidTasks._
 object TrypAndroid
 extends AutoPlugin
 {
-  override def requires = Templates && AndroidApp && Tryp
+  override def requires = Templates && Tryp
 
   import Templates.autoImport._
   import TrypBuildKeys._
@@ -116,6 +116,18 @@ extends AutoPlugin
     scalacOptions += "-target:jvm-1.7",
     javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
   )
+}
+
+object TrypAndroidApp
+extends AutoPlugin
+{
+  override def requires = TrypAndroid && AndroidApp
+}
+
+object TrypAndroidLib
+extends AutoPlugin
+{
+  override def requires = TrypAndroid && AndroidLib
 }
 
 object TrypAndroidBuildPlugin

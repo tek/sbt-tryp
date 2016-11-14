@@ -234,16 +234,16 @@ with ParamLensSyntax[Params, A]
   def project = builder.project(pro)
 
   def basicProject = {
-    val p = sbt.Project(name, file(params.path))
+    sbt.Project(name, file(params.path))
       .settings(reifyLogbackSettings)
       .dependsOn(refs: _*)
       .transformIf(!params.bintray)(_.disablePlugins(BintrayPlugin))
-    params.trans.foldLeft(p)((a, b) => b(a))
   }
 
   def configuredProject = {
-     basicProject
+    val p = basicProject
       .settings(libraryDeps ++ params.settings: _*)
+    params.trans.foldLeft(p)((a, b) => b(a))
   }
 
   def <<[B](pro: B)(implicit ts: ToSbt[B]) = dep(ts.reify(pro))

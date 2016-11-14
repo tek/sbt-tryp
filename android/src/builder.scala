@@ -10,13 +10,14 @@ import sbt._
 import Keys._
 import android.Keys._
 import android.protify.Keys._
+import android.protify.AndroidProtify
 import Types._
 import TrypAndroidKeys._
 
 @Lenses
 case class AndroidParams(transitive: Boolean, target: String, aar: Boolean,
   manifest: TemplateParams, multidex: Boolean,
-  multidexMain: List[String] = List(), deps: List[ProjectReference] = Nil)
+  multidexMain: List[String] = List())
 
 @Lenses
 case class AndroidProject(basic: Project[AndroidDeps], aparams: AndroidParams,
@@ -70,7 +71,14 @@ with ParamLensSyntax[AndroidParams, A]
     (AP.manifest.tokens ++ tokens.toMap >>> AP.manifest.write.!)(pro)
   }
 
-  def protify = pro.settings(protifySettings)
+  def trypAndroidPlug = if (aparams.aar) TrypAndroidLib else TrypAndroidApp
+
+  def enablePlugins(plug: sbt.AutoPlugin*) = pro map (_.enablePlugins(plug: _*))
+
+  def disablePlugins(plug: sbt.AutoPlugin*) =
+    pro map (_.disablePlugins(plug: _*))
+
+  def protify = enablePlugins(AndroidProtify)
 
   def multidexWithDeps(main: List[String] = List()) = {
     builder.multidex(pro)(main)
@@ -92,13 +100,7 @@ with ParamLensSyntax[AndroidParams, A]
   }
 
   def debug = {
-    protify.settingsV(apkbuildDebug ~= { a ⇒ a(true); a })
-  }
-
-  def arefs = adeps.aRefs(pro.name) ++ aparams.deps
-
-  def androidDeps(projects: ProjectReference*) = {
-    AP.deps ++! projects.toList
+    pro.settingsV(apkbuildDebug ~= { a ⇒ a(true); a })
   }
 
   def aarModuleSetting = aarModule := pro.name.replace('-', '.')
@@ -135,15 +137,11 @@ with ParamLensSyntax[AndroidParams, A]
   }
 
   def androidProject = {
-    pro.basicProject
-      .androidBuildWith(arefs: _*)
+    val p = pro.basicProject
       .settings(pro.params.settings: _*)
-      .enablePlugins(TrypAndroid)
+      .enablePlugins(trypAndroidPlug)
+    pro.params.trans.foldLeft(p)((a, b) => b(a))
   }
-
-  def <<<[B](pro: B)(implicit ts: ToSbt[B]) = androidDeps(ts.reify(pro))
-
-  def <<<![B](pro: B)(implicit ts: ToSbt[B]) = builder.project(<<<(pro))
 }
 
 trait ToAndroidProjectOps
@@ -164,18 +162,6 @@ extends ProjectBuilder[A]
   def multidex(pro: A)(main: List[String]): A
 
   def aparamLens: monocle.Lens[A, AndroidParams]
-}
-
-object AndroidProjectShow
-extends ToAndroidProjectOps
-{
-  import ProjectShow._
-
-  def arefs[A: AndroidProjectBuilder](pro: A) = {
-    val r = pro.arefs map(_.toString)
-    if (r.isEmpty) Nil
-    else "android refs:" :: shift(r)
-  }
 }
 
 class AndroidBuilder
@@ -209,7 +195,7 @@ with ToTransformIf
     val PS = ProjectShow
     val info =
       PS.deps(~pro.adeps.deps.get(pro.name)) ++ PS.settings(pro) ++
-        PS.refs(pro) ++ AndroidProjectShow.arefs(pro)
+        PS.refs(pro)
     s" ○ android project ${pro.name}" :: PS.shift(info)
   }
 
