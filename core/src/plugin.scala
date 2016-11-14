@@ -85,7 +85,7 @@ extends Tryplug
     projectBuild
       .settings(
         VersionUpdateKeys.updateAllPlugins := true,
-        TrypKeys.trypVersion <<= TrypKeys.trypVersion ?? "83"
+        TrypKeys.trypVersion := (TrypKeys.trypVersion ?? "83").value
       )
 
   trait TrypBuildBuildDeps

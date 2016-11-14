@@ -35,7 +35,7 @@ with Tryplug
   lazy val android = pluginSubProject("android")
     .settings(
       name := "tryp-android",
-      update <<= update dependsOn(updateVersions),
+      update := (update dependsOn updateVersions).value,
       updateAllPlugins := true
     )
     .settings(common: _*)
@@ -49,8 +49,9 @@ with Tryplug
     .settings(
       resolvers += Resolver.typesafeIvyRepo("releases"),
       sbtTestDirectory := baseDirectory.value / "test",
-      scriptedRun <<=
-        scriptedRun dependsOn(publishLocal in core, publishLocal in android),
+      scriptedRun :=
+        scriptedRun.dependsOn(publishLocal in core,
+          publishLocal in android).value,
       scriptedBufferLog := false,
       scriptedLaunchOpts ++= Seq(
         "-Xmx2048m",

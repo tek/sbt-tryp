@@ -112,7 +112,7 @@ extends AutoPlugin
       else Seq()
     },
     logbackOutput := projectLayout.value.assets / logbackName,
-    symlinkLibs <<= symlinkLibsTask,
+    symlinkLibs := symlinkLibsTask.value,
     scalacOptions += "-target:jvm-1.7",
     javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
   )

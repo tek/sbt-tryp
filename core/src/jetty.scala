@@ -20,7 +20,7 @@ extends AutoPlugin
   def timestamp = System.currentTimeMillis / 1000
 
   override lazy val projectSettings = Seq(
-    deploy <<= deployTask dependsOn Keys.`package`
+    deploy := (deployTask dependsOn Keys.`package`).evaluated
   )
 
   def deployTask = Def.inputTask {

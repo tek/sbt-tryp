@@ -42,10 +42,10 @@ object Tests {
     exportJars in Test := false,
     fork in Test := true,
     unmanagedClasspath in Test ++= bootClasspath.value,
-    Keys.test in Test <<=
-      Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs,
-    testOnly in Test <<=
-      testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs,
+    Keys.test in Test :=
+      (Keys.test in Test dependsOn TrypAndroidKeys.symlinkLibs).value,
+    testOnly in Test :=
+      (testOnly in Test dependsOn TrypAndroidKeys.symlinkLibs).evaluated,
     logbackOutput := resourceManaged.value / logbackName,
     javaOptions in Test ++= Seq(
       "-XX:+CMSClassUnloadingEnabled",

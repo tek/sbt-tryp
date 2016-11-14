@@ -80,8 +80,8 @@ extends AutoPlugin
   override lazy val projectSettings = Seq(
     templates := Seq(),
     keyFormatter := { (k: String) ⇒ s"$${$k}" },
-    templateResources <<= templatesTask,
-    resourceGenerators in Compile <+= templateResources,
+    templateResources := templatesTask.value,
+    (resourceGenerators in Compile) += templateResources.taskValue,
     metaRes := (baseDirectory in ThisBuild).value / "meta" / "resources"
   )
 }

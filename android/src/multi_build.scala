@@ -56,7 +56,7 @@ with AndroidProjectInstances
   )
 
   lazy val manifestDep =
-    manifest <<= manifest dependsOn TemplatesKeys.templateResources
+    manifest := (manifest dependsOn TemplatesKeys.templateResources).value
 
   lazy val manifestResourceFilter =
     (managedResources in Compile) := {

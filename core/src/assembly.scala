@@ -20,7 +20,7 @@ extends AutoPlugin
   def timestamp = System.currentTimeMillis / 1000
 
   override lazy val projectSettings = Seq(
-    deployAssembly <<= deployTask dependsOn assembly,
+    deployAssembly := (deployTask dependsOn assembly).evaluated,
     test in assembly := {},
     assemblyMergeStrategy in assembly := {
       case "application.conf" ⇒ MergeStrategy.concat
