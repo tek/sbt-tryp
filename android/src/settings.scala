@@ -8,7 +8,7 @@ import TrypBuildKeys._
 
 object Aar
 {
-  lazy val settings = android.Plugin.buildAar.toList ++ Export.settings
+  lazy val settings = Export.settings
 }
 
 trait Proguard {
