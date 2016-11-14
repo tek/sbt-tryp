@@ -14,7 +14,7 @@ object TrypAndroidKeys
 {
   import Templates.autoImport.Tokens
 
-  import TrypKeys.{Tryp ⇒ TrypC}
+  import TrypKeys.{Tryp => TrypC}
 
   val manifestTokens = Def.settingKey[Tokens](
     "additional replacement tokens for the manifest") in TrypC
@@ -37,9 +37,9 @@ object TrypAndroidSettings
 {
   def manifestTemplateData = Def.setting {
     val tokens = Map(
-      "version_code" → version.value
+      "version_code" -> version.value
     ) ++ manifestTokens.value
-    manifestTemplate.value → projectLayout.value.manifest → tokens
+    manifestTemplate.value -> projectLayout.value.manifest -> tokens
   }
 
   val aarsDir = Def.setting(target.value / "aars")
@@ -62,14 +62,14 @@ object TrypAndroidTasks
     val dir = aarsDir.value
     val sbtDeps = thisProjectRef.value
       .deepDeps
-      .flatMap(r ⇒ sbt.Project.getProject(r, struct))
-      .map(pro ⇒ (pro.base, s"${pro.base.getParentFile.getName}-${pro.id}"))
-    val targets = (aars.value.map(a ⇒ (a.path, a.path.getName)) ++ sbtDeps)
-      .filter { case (d, n) ⇒ (d / "res").exists }
+      .flatMap(r => sbt.Project.getProject(r, struct))
+      .map(pro => (pro.base, s"${pro.base.getParentFile.getName}-${pro.id}"))
+    val targets = (aars.value.map(a => (a.path, a.path.getName)) ++ sbtDeps)
+      .filter { case (d, n) => (d / "res").exists }
       .distinct
     IO.delete(dir)
     IO.createDirectory(dir)
-    targets.map { case (path, name) ⇒
+    targets.map { case (path, name) =>
       val aarDir = dir / name
       val maniDir =
         if ((path / "target" / manifestName).exists) path / "target"

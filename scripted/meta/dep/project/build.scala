@@ -7,7 +7,7 @@ object Deps
 extends tryp.AndroidDeps
 {
   override def deps = super.deps ++ Map(
-    "depcore" → depcore
+    "depcore" -> depcore
   )
 
   lazy val depcore = ids(

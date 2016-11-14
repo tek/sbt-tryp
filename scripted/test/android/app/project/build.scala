@@ -7,7 +7,7 @@ object Deps
 extends tryp.AndroidDeps
 {
   override def deps = super.deps ++ Map(
-    "core" → core
+    "core" -> core
   )
 
   lazy val core = ids(
@@ -35,12 +35,12 @@ extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
     .path("pkg")
     .release
     .manifest(
-      "minSdk" → "21",
-      "targetSdk" → "23",
-      "activityClass" → ".MainActivity"
+      "minSdk" -> "21",
+      "targetSdk" -> "23",
+      "activityClass" -> ".MainActivity"
     )
     .settingsV(
-      manifestTokens += ("package" → androidPackage.value)
+      manifestTokens += ("package" -> androidPackage.value)
     )
     .map(_.dependsOn(stuff))
     .!

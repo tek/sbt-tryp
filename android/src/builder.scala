@@ -91,7 +91,7 @@ with ParamLensSyntax[AndroidParams, A]
   def release = {
     proguard
       .settingsV(
-        apkbuildDebug ~= { a ⇒ a(false); a },
+        apkbuildDebug ~= { a => a(false); a },
         dexMainClasses ++= {
           val path = androidPackage.value.replace('.', '/')
           Seq(s"$path/Application.class", s"$path/MainActivity.class")
@@ -100,7 +100,7 @@ with ParamLensSyntax[AndroidParams, A]
   }
 
   def debug = {
-    pro.settingsV(apkbuildDebug ~= { a ⇒ a(true); a })
+    pro.settingsV(apkbuildDebug ~= { a => a(true); a })
   }
 
   def aarModuleSetting = aarModule := pro.name.replace('-', '.')

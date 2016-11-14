@@ -23,8 +23,8 @@ extends AutoPlugin
     deployAssembly := (deployTask dependsOn assembly).evaluated,
     test in assembly := {},
     assemblyMergeStrategy in assembly := {
-      case "application.conf" ⇒ MergeStrategy.concat
-      case a ⇒ (assemblyMergeStrategy in assembly).value(a)
+      case "application.conf" => MergeStrategy.concat
+      case a => (assemblyMergeStrategy in assembly).value(a)
     },
     assemblyOption in assembly :=
       (assemblyOption in assembly).value
@@ -35,7 +35,7 @@ extends AutoPlugin
     val args = Def.spaceDelimited().parsed
     val msg = "specify a single directory"
     if (args.length != 1) sys.error(msg)
-    val targetDir = args.headOption map { f ⇒ new File(f) } getOrElse {
+    val targetDir = args.headOption map { f => new File(f) } getOrElse {
       sys.error(msg) }
     if (!targetDir.isDirectory) sys.error("argument is not a directory")
     val outName = s"${Keys.name.value}-$timestamp.jar"

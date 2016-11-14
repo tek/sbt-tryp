@@ -7,7 +7,7 @@ object TrypBuildKeys
 {
   import Templates.autoImport.Tokens
 
-  import TrypKeys.{Tryp ⇒ TrypC}
+  import TrypKeys.{Tryp => TrypC}
 
   val paradiseJar = settingKey[Option[File]](
     "location of the macro paradise jar") in TrypC
@@ -27,10 +27,10 @@ object TrypLogbackSettings
 {
   def logbackTemplateData = Def.setting {
     val tokens = Map(
-      "log_file_name" → name.value,
-      "tag" → name.value
+      "log_file_name" -> name.value,
+      "tag" -> name.value
     ) ++ logbackTokens.value
-    logbackTemplate.value → logbackOutput.value → tokens
+    logbackTemplate.value -> logbackOutput.value -> tokens
   }
 
   val aarsDir = Def.setting(target.value / "aars")
@@ -69,7 +69,7 @@ with Tryplug
       },
       paradiseJar := {
         val name = s"paradise_${scalaVersion.value}"
-        homeDir flatMap { home ⇒
+        homeDir flatMap { home =>
           (home / ".ivy2" / "cache" / "org.scalamacros" / name / "jars" *
             s"$name*.jar").get.headOption
         }
@@ -92,7 +92,7 @@ extends Tryplug
   extends PluginDeps
   {
     override def deps = super.deps ++ Map(
-      projectBuildName → projectBuildDeps
+      projectBuildName -> projectBuildDeps
     )
   }
 

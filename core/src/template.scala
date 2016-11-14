@@ -16,7 +16,7 @@ object TemplatesKeys
     settingKey[Seq[Template]]("template files") in Tryp
 
   lazy val keyFormatter =
-    settingKey[String ⇒ String]("map keys to placeholders") in Tryp
+    settingKey[String => String]("map keys to placeholders") in Tryp
 
   lazy val metaRes = Def.settingKey[File]("meta resource dir") in Tryp
 
@@ -36,15 +36,15 @@ extends AutoPlugin
   val cacheName = "templates"
 
   def replaceTokens(content: String, values: Tokens,
-    formatter: String ⇒ String) = {
-      values.foldLeft(content) { case (text, (key, value)) ⇒
+    formatter: String => String) = {
+      values.foldLeft(content) { case (text, (key, value)) =>
         text.replaceAllLiterally(formatter(key), value)
       }
   }
 
 
   def template(source: File, target: File, values: Tokens,
-    formatter: String ⇒ String) = {
+    formatter: String => String) = {
       IO.write(target, replaceTokens(IO.read(source), values, formatter))
       target
   }
@@ -67,8 +67,8 @@ extends AutoPlugin
       streams.value.log.info(s"generating $target")
       template(source, target, values, keyFormatter.value)
     }
-    val update: (ChangeReport[File], ChangeReport[File]) ⇒ Set[File] =
-      (src, out) ⇒ {
+    val update: (ChangeReport[File], ChangeReport[File]) => Set[File] =
+      (src, out) => {
         val candidates = src.modified.flatMap(bySource.get) ++
           out.modified.flatMap(byOutput.get)
         candidates map(generate)
@@ -79,7 +79,7 @@ extends AutoPlugin
 
   override lazy val projectSettings = Seq(
     templates := Seq(),
-    keyFormatter := { (k: String) ⇒ s"$${$k}" },
+    keyFormatter := { (k: String) => s"$${$k}" },
     templateResources := templatesTask.value,
     (resourceGenerators in Compile) += templateResources.taskValue,
     metaRes := (baseDirectory in ThisBuild).value / "meta" / "resources"

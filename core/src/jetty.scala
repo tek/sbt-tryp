@@ -27,7 +27,7 @@ extends AutoPlugin
     val args = Def.spaceDelimited().parsed
     val msg = "specify a single directory"
     if (args.length != 1) sys.error(msg)
-    val targetDir = args.headOption map { f ⇒ new File(f) } getOrElse {
+    val targetDir = args.headOption map { f => new File(f) } getOrElse {
       sys.error(msg) }
     if (!targetDir.isDirectory) sys.error("argument is not a directory")
     val outName = s"${Keys.name.value}-${Keys.version.value}-$timestamp.war"

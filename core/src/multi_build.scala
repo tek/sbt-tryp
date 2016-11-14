@@ -20,7 +20,7 @@ with ProjectInstances
   def consoleImports = ""
 
   lazy val prefixedName = name := {
-    title map(a ⇒ s"$a-${name.value}") getOrElse(name.value)
+    title map(a => s"$a-${name.value}") getOrElse(name.value)
   }
 
   def tdp(name: String) =
@@ -64,9 +64,9 @@ extends MultiBuildBase
   def projectInfoCommandName = "tryp-projects"
 
   def projectInfoCommand = {
-    Command.args(projectInfoCommandName, "<projects>") { (state, projects) ⇒
+    Command.args(projectInfoCommandName, "<projects>") { (state, projects) =>
       val pros = if (projects.isEmpty) trypProjects
-      else trypProjects filter(a ⇒ projects contains a.name)
+      else trypProjects filter(a => projects contains a.name)
       pros flatMap(_.info :+ "") foreach(state.log.info(_))
       state
     }

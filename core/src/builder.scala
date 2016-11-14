@@ -46,7 +46,7 @@ object Params
 
 abstract class ProjectI[A <: ProjectI[A]](implicit builder: ProjectBuilder[A])
 {
-  self: A ⇒
+  self: A =>
 
   lazy val reify: sbt.Project = builder.project(this)
 
@@ -62,7 +62,7 @@ case class Project[D <: Deps](params: Params, deps: D)
 extends ProjectI[Project[D]]
 
 final class TransformIf[A](a: A) {
-  def transformIf(pred: ⇒ Boolean)(transform: A ⇒ A) =
+  def transformIf(pred: => Boolean)(transform: A => A) =
     if(pred) transform(a) else a
 }
 
@@ -207,7 +207,7 @@ with ParamLensSyntax[Params, A]
   def macroConsole =
     settingsV(
       scalacOptions ++= {
-        paradiseJar.value map(p ⇒ s"-Xplugin:$p") toSeq
+        paradiseJar.value map(p => s"-Xplugin:$p") toSeq
       },
       initialCommands in sbt.Keys.console += {
         val uni = """
