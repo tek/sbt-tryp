@@ -207,7 +207,7 @@ with ParamLensSyntax[Params, A]
   def macroConsole =
     settingsV(
       scalacOptions ++= {
-        paradiseJar.value map(p => s"-Xplugin:$p") toSeq
+        paradiseJar.value.map(p => s"-Xplugin:$p").toSeq
       },
       initialCommands in sbt.Keys.console += {
         val uni = """

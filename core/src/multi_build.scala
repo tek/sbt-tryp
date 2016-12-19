@@ -32,7 +32,7 @@ with ProjectInstances
 
   val home = new File(sys.env.get("HOME").getOrElse("/"))
 
-  lazy val root = pb("root") ~ "." !
+  lazy val root = (pb("root") ~ ".").!
 
   def metaTarget = target := (target in root).value / name.value
 
