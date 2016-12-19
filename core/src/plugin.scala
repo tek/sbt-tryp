@@ -74,7 +74,7 @@ with Tryplug
             s"$name*.jar").get.headOption
         }
       },
-      addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
+      addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
     )
 }
 
