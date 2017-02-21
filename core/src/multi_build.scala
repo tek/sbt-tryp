@@ -76,16 +76,7 @@ extends MultiBuildBase
 trait TrypBuild
 extends ExtMultiBuild
 {
-  override def settings = super.settings ++ trypSettings ++ List(
-    resolvers += Resolver.bintrayRepo("tek", "maven"),
-    libraryDependencies ++= {
-      scalaVersion.value match {
-        case v if v.startsWith("2.11") || v.startsWith("2.12") =>
-          List(compilerPlugin("tryp" %% "splain" % "0.1.9"))
-        case _ => Nil
-      }
-    }
-  )
+  override def settings = super.settings ++ trypSettings
 }
 
 class MultiBuild(t: String, override val deps: Deps = DefaultDeps)
