@@ -1,1 +1,1 @@
-sdkVersion in Global := "1.7.7"
+tryp.TrypKeys.sdkVersion in Global := "1.7.7"
