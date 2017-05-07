@@ -33,6 +33,9 @@ with ToAndroidProjectOps
     AndroidProject(Project(name, deps, defaults),
       AndroidParams(false, platform, false, TemplateParams(), false), prog
     )
+
+  implicit def AndroidProjectToClasspathDep(p: AndroidProject): ClasspathDep[ProjectReference] = p.reify
+  implicit def AndroidProjectToProjectReference(p: AndroidProject): ProjectReference = p.reify
 }
 
 class AndroidProjectOps[A](val pro: A)

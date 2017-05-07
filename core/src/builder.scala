@@ -71,21 +71,31 @@ trait ToTransformIf
   implicit def ToTransformIf[A](a: A) = new TransformIf(a)
 }
 
-trait ToSbt[A]
+trait ToCD[A]
 {
-  def reify(project: A): sbt.Project
+  def reify(project: A): ClasspathDep[ProjectReference]
 }
 
-object ToSbt
+object ToCD
 {
-  implicit def ProjectIToSbt[A <: ProjectI[A]] =
-    new ToSbt[A] {
+  implicit def ProjectIToCD[A <: ProjectI[A]] =
+    new ToCD[A] {
       def reify(project: A) = project.reify
     }
 
-  implicit val sbtToSbt =
-    new ToSbt[sbt.Project] {
+  implicit val sbtToCD =
+    new ToCD[sbt.Project] {
       def reify(project: sbt.Project) = project
+    }
+
+  implicit def ClasspathDepToCD =
+    new ToCD[ClasspathDep[ProjectReference]] {
+      def reify(dep: ClasspathDep[ProjectReference]) = dep
+    }
+
+  implicit def ClasspathDependencyToCD =
+    new ToCD[ClasspathDependency] {
+      def reify(dep: ClasspathDependency) = dep
     }
 }
 
@@ -246,9 +256,9 @@ with ParamLensSyntax[Params, A]
     params.trans.foldLeft(p)((a, b) => b(a))
   }
 
-  def <<[B](pro: B)(implicit ts: ToSbt[B]) = dep(ts.reify(pro))
+  def <<[B](pro: B)(implicit tcd: ToCD[B]) = dep(tcd.reify(pro))
 
-  def <<![B](pro: B)(implicit ts: ToSbt[B]) = builder.project(<<(pro))
+  def <<![B](pro: B)(implicit tcd: ToCD[B]) = builder.project(<<(pro))
 
   def aggregate(projects: ProjectReference*) = {
     project.aggregate(projects: _*)
@@ -277,6 +287,9 @@ with ToProjectOps
   def apply[D <: Deps](name: String, deps: D, defaults: Setts = Nil)
   : Project[D] =
     Project(Params.create(name, defaults), deps)
+
+  implicit def ProjectToClasspathDep[D <: Deps](p: Project[D]): ClasspathDep[ProjectReference] = p.reify
+  implicit def ProjectToProjectReference[D <: Deps](p: Project[D]): ProjectReference = p.reify
 }
 
 class BasicProjectBuilder[D <: Deps]

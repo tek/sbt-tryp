@@ -31,7 +31,7 @@ extends tryp.AndroidBuild("app", deps = Deps, proguard = Proguard)
 
   lazy val core = aar("core")
 
-  lazy val pkg = ("app-pkg" <<< core)
+  lazy val pkg = ("app-pkg" << (core % "compile->compile"))
     .path("pkg")
     .release
     .manifest(
