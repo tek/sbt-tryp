@@ -64,9 +64,9 @@ with Tryplug
   )
 
   def versionSettings = List(
-    setScala := true,
+    setScala := !sbtPlugin.value,
     twelve := false,
-    tls := true,
+    tls := setScala.value,
     scalaVersion := {
       if (setScala.value) {
         val patch = if (twelve.value) "2.12.2" else "2.11.11"
