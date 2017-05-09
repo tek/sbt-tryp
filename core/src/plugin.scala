@@ -64,7 +64,7 @@ with Tryplug
   )
 
   def versionSettings = List(
-    setScala := !sbtPlugin.value,
+    setScala := false,
     twelve := false,
     tls := setScala.value,
     scalaVersion := {
