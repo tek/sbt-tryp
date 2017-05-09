@@ -9,17 +9,15 @@ object TrypBuildKeys
 
   import TrypKeys.{Tryp => TrypC}
 
-  val paradiseJar = settingKey[Option[File]](
-    "location of the macro paradise jar") in TrypC
-  val generateLogback = Def.settingKey[Boolean](
-    s"automatically generate $logbackName") in TrypC
-  val logbackTokens = Def.settingKey[Tokens](
-    s"additional replacement tokens for $logbackName") in TrypC
-  val logbackTemplate = Def.settingKey[File](
-    s"location of the template for $logbackName generation") in TrypC
-  val logbackOutput = Def.settingKey[File](
-    s"location of the generated $logbackName") in TrypC
+  val paradiseJar = settingKey[Option[File]]( "location of the macro paradise jar") in TrypC
+  val generateLogback = Def.settingKey[Boolean]( s"automatically generate $logbackName") in TrypC
+  val logbackTokens = Def.settingKey[Tokens]( s"additional replacement tokens for $logbackName") in TrypC
+  val logbackTemplate = Def.settingKey[File]( s"location of the template for $logbackName generation") in TrypC
+  val logbackOutput = Def.settingKey[File](s"location of the generated $logbackName") in TrypC
   val tryplugVersion = settingKey[String]("tryplug version") in TrypC
+  val twelve = settingKey[Boolean]("use 2.12") in TrypC
+  val tls = settingKey[Boolean]("use typelevel scala") in TrypC
+  val setScala = settingKey[Boolean]("set default scala version") in TrypC
 }
 import TrypBuildKeys._
 
@@ -56,6 +54,32 @@ with Tryplug
 
   import Templates.autoImport._
   import TrypBuildKeys._
+
+  val tlsOptions = List(
+    "-Yinduction-heuristics",
+    "-Ykind-polymorphism",
+    "-Yliteral-types",
+    "-Xstrict-patmat-analysis",
+    "-Xlint:strict-unsealed-patmat"
+  )
+
+  def versionSettings = List(
+    setScala := true,
+    twelve := false,
+    tls := true,
+    scalaVersion := {
+      if (setScala.value) {
+        val patch = if (twelve.value) "2.12.2" else "2.11.11"
+        val suf = if (tls.value) "-bin-typelevel-4" else ""
+        s"$patch$suf"
+      }
+      else scalaVersion.value
+    },
+    scalaOrganization := (if (tls.value) "org.typelevel" else "org.scala-lang"),
+    scalacOptions ++= (if (tls.value) tlsOptions else Nil)
+  )
+
+  override def buildSettings = super.buildSettings ++ versionSettings
 
   override def projectSettings =
     super.projectSettings ++ commonBasicSettings ++ Seq(
