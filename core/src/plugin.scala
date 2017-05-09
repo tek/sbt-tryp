@@ -68,7 +68,7 @@ with Tryplug
         else Seq()
       },
       paradiseJar := {
-        val name = s"paradise_${scalaVersion.value}"
+        val name = s"paradise_${CrossVersion.patch}"
         homeDir flatMap { home =>
           (home / ".ivy2" / "cache" / "org.scalamacros" / name / "jars" *
             s"$name*.jar").get.headOption
