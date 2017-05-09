@@ -20,7 +20,7 @@ with Tryplug
     libraryDependencies +=
       "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary,
     addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.+" cross CrossVersion.full)
+      "org.scalamacros" % "paradise" % "2.+" cross CrossVersion.patch)
   )
 
   lazy val core = pluginSubProject("core")

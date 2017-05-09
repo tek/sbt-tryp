@@ -23,7 +23,7 @@ object Paradise {
   def settings(version: String) = List(
     incOptions := incOptions.value.withNameHashing(false),
     addCompilerPlugin(
-      "org.scalamacros" % "paradise" % version cross CrossVersion.full
+      "org.scalamacros" % "paradise" % version cross CrossVersion.patch
     )
   )
 }
