@@ -108,6 +108,7 @@ extends Tryplug
   def mkTrypProjectBuild =
     projectBuild
       .settings(
+        setScala := false,
         VersionUpdateKeys.updateAllPlugins := true,
         TrypKeys.trypVersion := (TrypKeys.trypVersion ?? "83").value
       )
