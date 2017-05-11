@@ -75,14 +75,13 @@ with Tryplug
       }
       else scalaVersion.value
     },
-    scalaOrganization := (if (tls.value) "org.typelevel" else "org.scala-lang"),
+    scalaOrganization :=
+      (if (setScala.value) (if (tls.value) "org.typelevel" else "org.scala-lang") else scalaOrganization.value),
     scalacOptions ++= (if (tls.value) tlsOptions else Nil)
   )
 
-  override def buildSettings = super.buildSettings ++ versionSettings
-
   override def projectSettings =
-    super.projectSettings ++ commonBasicSettings ++ Seq(
+    super.projectSettings ++ compilerSettings ++ versionSettings ++ Seq(
       generateLogback := false,
       logbackTemplate := metaRes.value / logbackName,
       logbackOutput := resourceManaged.value / logbackName,

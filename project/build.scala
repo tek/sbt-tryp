@@ -12,15 +12,25 @@ object TrypBuild
 extends sbt.Build
 with Tryplug
 {
-  override def settings = super.settings ++ pluginVersionDefaults
+  override def settings = super.settings ++ pluginVersionDefaults ++ Seq(
+    propVersion(sdkVersion, "sdk", "1.5.1"),
+    propVersion(protifyVersion, "protify", "1.1.4")
+  )
 
   def tryplugVersion = TrypKeys.tryplugVersion
 
+  def androidName = "android"
+  val huy = "org.scala-android"
+  val sdkName = "sbt-android"
+  val protifyName = "sbt-android-protify"
+
+  val sdkVersion = settingKey[String]("android-sdk-plugin version") in Tryp
+
+  val protifyVersion = settingKey[String]("protify version") in Tryp
+
   lazy val common = List(
-    libraryDependencies +=
-      "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary,
-    addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.+" cross CrossVersion.patch)
+    libraryDependencies += "org.scalamacros" % "quasiquotes" % "2.+" cross CrossVersion.binary,
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.+" cross CrossVersion.patch)
   )
 
   lazy val core = pluginSubProject("core")
@@ -72,6 +82,15 @@ with Tryplug
       "android" -> android,
       "tryp" -> root
     )
+
+    def androidSdk =
+      plugin(huy, sdkName, sdkVersion, s"scala-android/$sdkName")
+        .bintray("pfn")
+
+    def protify =
+      plugin(huy, s"$protifyName", protifyVersion,
+        s"scala-android/$protifyName")
+          .bintray("pfn")
 
     val core = ids(
       tryplug,
